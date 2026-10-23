@@ -8,10 +8,6 @@ export function renderStatus(container, messageKey) {
 }
 
 export function renderResult(container, result, catalog) {
-  if (result.profile.isEmpty) {
-    renderStatus(container, 'not_understood');
-    return;
-  }
   if (result.mixes.length === 0) {
     renderStatus(container, 'no_results');
     return;
@@ -22,16 +18,13 @@ export function renderResult(container, result, catalog) {
 function createMixCard(mix, catalog) {
   const card = document.createElement('article');
   card.className = `mix-card mix-card-${mix.tier}`;
-
-  const tier = document.createElement('p');
-  tier.className = 'mix-tier';
-  tier.textContent = t(`tier_${mix.tier}`);
+  card.setAttribute('aria-label', t(`tier_${mix.tier}`));
 
   const components = document.createElement('ul');
   components.className = 'mix-components';
   components.append(...mix.components.map((component) => createComponentRow(component, catalog)));
 
-  card.append(tier, components);
+  card.append(components);
 
   if (mix.note) {
     const note = document.createElement('p');

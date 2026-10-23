@@ -3,7 +3,7 @@ import { loadCatalog } from './data.js';
 import { initDebug, mountDebugPanel, debugLog } from './debug.js';
 import { initForm } from './ui/form.js';
 import { renderResult, renderStatus } from './ui/results.js';
-import { recommend, MIXES_PER_PAGE } from './engine/recommend.js';
+import { recommend } from './engine/recommend.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const buildId = document.documentElement.dataset.build || 'local';
@@ -22,7 +22,6 @@ async function main() {
   updateLangToggle();
 
   const resultsContainer = document.getElementById('results');
-  const moreButton = document.getElementById('more-button');
 
   let catalog;
   try {
@@ -43,16 +42,20 @@ async function main() {
     } else if (state.result) {
       renderResult(resultsContainer, state.result, catalog);
     }
-    moreButton.hidden = state.status !== null || !state.result || state.result.mixes.length < MIXES_PER_PAGE;
   };
 
   const loadPage = async (request, page) => {
     const startedAt = performance.now();
     try {
-      const result = await recommend(request, catalog, page);
-      debugLog(`Request "${request.query}" page ${page} → ${result.mixes.length} mixes in ${Math.round(performance.now() - startedAt)} ms`);
+      let result = await recommend(request, catalog, page);
+      let loadedPage = page;
+      if (page > 0 && result.mixes.length === 0) {
+        loadedPage = 0;
+        result = await recommend(request, catalog, loadedPage);
+      }
+      debugLog(`Request "${request.query}" page ${loadedPage} → ${result.mixes.length} mixes in ${Math.round(performance.now() - startedAt)} ms`);
       debugLog(`Profile: ${describeProfile(result.profile)}`);
-      Object.assign(state, { request, page, result, status: null });
+      Object.assign(state, { request, page: loadedPage, result, status: null });
     } catch (error) {
       debugLog(error.stack || error.message, 'error');
       Object.assign(state, { request, page, result: null, status: 'error_engine' });
@@ -63,17 +66,12 @@ async function main() {
   const form = initForm({
     form: document.getElementById('mix-form'),
     onSubmit: async (request) => {
-      moreButton.hidden = true;
-      renderStatus(resultsContainer, 'loading');
-      await loadPage(request, 0);
+      const isRepeat = state.result !== null && state.request?.query.toLowerCase() === request.query.toLowerCase();
+      if (!isRepeat) {
+        renderStatus(resultsContainer, 'loading');
+      }
+      await loadPage(request, isRepeat ? state.page + 1 : 0);
     },
-  });
-
-  moreButton.addEventListener('click', async () => {
-    moreButton.disabled = true;
-    await loadPage(state.request, state.page + 1);
-    moreButton.disabled = false;
-    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   onLangChange(() => {
@@ -94,6 +92,7 @@ function describeProfile(profile) {
     `properties=${formatMap(profile.properties)}`,
     `required=${profile.required.join(' ')}`,
     `excluded=${[...profile.excluded].join(' ')}`,
+    `random=${profile.isRandom ? 'yes' : 'no'}`,
   ].join(' | ');
 }
 

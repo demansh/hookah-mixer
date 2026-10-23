@@ -1,16 +1,11 @@
-import { t, tList } from '../i18n.js';
+import { tList } from '../i18n.js';
 
 const MAX_QUERY_LENGTH = 120;
 
 export function initForm({ form, onSubmit }) {
   const queryInput = form.querySelector('#query-input');
-  const queryError = form.querySelector('#query-error');
   const exampleChips = form.querySelector('#example-chips');
   const submitButton = form.querySelector('[type="submit"]');
-
-  const hideError = () => {
-    queryError.hidden = true;
-  };
 
   const renderExamples = () => {
     exampleChips.replaceChildren(
@@ -21,7 +16,6 @@ export function initForm({ form, onSubmit }) {
         chip.textContent = example;
         chip.addEventListener('click', () => {
           queryInput.value = example;
-          hideError();
           form.requestSubmit();
         });
         return chip;
@@ -29,17 +23,9 @@ export function initForm({ form, onSubmit }) {
     );
   };
 
-  queryInput.addEventListener('input', hideError);
-
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const query = normalizeQuery(queryInput.value);
-    if (!query) {
-      queryError.textContent = t('query_error_empty');
-      queryError.hidden = false;
-      queryInput.focus();
-      return;
-    }
     queryInput.blur();
     submitButton.disabled = true;
     try {

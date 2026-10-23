@@ -26,16 +26,47 @@ const TIERS = [
 const MAX_PAGE_SIMILARITY = 0.5;
 const RANKING_CACHE_SIZE = 5;
 const COOLING_ID = 'cooling';
+const RANDOM_PARTNER_MIN_AFFINITY = 0.4;
+const RANDOM_SECOND_WEIGHT = 0.8;
+const RANDOM_COOLING_PROBABILITY = 0.4;
+const RANDOM_COOLING_WEIGHT = 0.4;
 const rankingCache = new Map();
 
 export async function recommend(request, catalog, page = 0) {
-  const profile = parseQuery(request.query, catalog);
-  if (profile.isEmpty) {
-    return { profile, mixes: [] };
+  const parsedProfile = parseQuery(request.query, catalog);
+  if (parsedProfile.isEmpty) {
+    const randomProfile = buildRandomProfile(parsedProfile, catalog);
+    const rankings = computeRankings(randomProfile, catalog);
+    return { profile: randomProfile, mixes: toMixes(selectPage(rankings, 0), rankings, catalog) };
   }
-  const rankings = getRankings(request, profile, catalog);
-  const mixes = selectPage(rankings, page).map(({ tierId, candidate }) => toMix(tierId, candidate, rankings.pool, catalog));
-  return { profile, mixes };
+  const rankings = getRankings(request, parsedProfile, catalog);
+  return { profile: parsedProfile, mixes: toMixes(selectPage(rankings, page), rankings, catalog) };
+}
+
+function toMixes(selection, rankings, catalog) {
+  return selection.map(({ tierId, candidate }) => toMix(tierId, candidate, rankings.pool, catalog));
+}
+
+function buildRandomProfile(parsedProfile, catalog) {
+  const graph = getGraph(catalog);
+  const isAllowed = (flavor) => flavor.kind === 'flavor' && flavor.id !== COOLING_ID && !parsedProfile.excluded.has(flavor.id);
+  const ingredients = catalog.flavors.filter(isAllowed);
+  const bases = ingredients.filter((flavor) => flavor.role === 'base');
+  const first = pickRandom(bases.length > 0 ? bases : ingredients);
+  const partners = graph.getPartners(first.id)
+    .filter((partner) => partner.affinity >= RANDOM_PARTNER_MIN_AFFINITY)
+    .map((partner) => catalog.flavorsById.get(partner.id))
+    .filter((flavor) => isAllowed(flavor) && flavor.category !== first.category);
+  const second = pickRandom(partners.length > 0 ? partners : ingredients.filter((flavor) => flavor.id !== first.id));
+  const weights = new Map([[first.id, 1], [second.id, RANDOM_SECOND_WEIGHT]]);
+  if (!parsedProfile.excluded.has(COOLING_ID) && Math.random() < RANDOM_COOLING_PROBABILITY) {
+    weights.set(COOLING_ID, RANDOM_COOLING_WEIGHT);
+  }
+  return { ...parsedProfile, weights, isEmpty: false, isRandom: true };
+}
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
 function getRankings(request, profile, catalog) {
@@ -43,6 +74,15 @@ function getRankings(request, profile, catalog) {
   if (rankingCache.has(cacheKey)) {
     return rankingCache.get(cacheKey);
   }
+  const rankings = computeRankings(profile, catalog);
+  rankingCache.set(cacheKey, rankings);
+  if (rankingCache.size > RANKING_CACHE_SIZE) {
+    rankingCache.delete(rankingCache.keys().next().value);
+  }
+  return rankings;
+}
+
+function computeRankings(profile, catalog) {
   const graph = getGraph(catalog);
   const pool = buildPool(profile, catalog, graph);
   const candidates = generateCandidates(pool, profile, catalog, graph);
@@ -51,12 +91,7 @@ function getRankings(request, profile, catalog) {
     const source = accepted.length > 0 ? accepted : candidates;
     return [tier.id, [...source].sort((left, right) => tier.score(right) - tier.score(left))];
   }));
-  const rankings = { pool, byTier, graph };
-  rankingCache.set(cacheKey, rankings);
-  if (rankingCache.size > RANKING_CACHE_SIZE) {
-    rankingCache.delete(rankingCache.keys().next().value);
-  }
-  return rankings;
+  return { pool, byTier, graph };
 }
 
 function selectPage(rankings, page) {
