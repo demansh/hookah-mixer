@@ -89,6 +89,7 @@ async function main() {
 
   const form = initForm({
     form: formElement,
+    concepts: catalog.concepts,
     onSubmit: async (request) => {
       const isRepeat = state.result !== null && state.request?.query.toLowerCase() === request.query.toLowerCase();
       if (!isRepeat) {

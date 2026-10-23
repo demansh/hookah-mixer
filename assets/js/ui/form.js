@@ -1,27 +1,19 @@
-import { tList } from '../i18n.js';
+import { initExampleChips } from './examples.js';
 
 const MAX_QUERY_LENGTH = 300;
 
-export function initForm({ form, onSubmit }) {
+export function initForm({ form, concepts, onSubmit }) {
   const queryInput = form.querySelector('#query-input');
-  const exampleChips = form.querySelector('#example-chips');
   const submitButton = form.querySelector('[type="submit"]');
 
-  const renderExamples = () => {
-    exampleChips.replaceChildren(
-      ...tList('examples').map((example) => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'chip';
-        chip.textContent = example;
-        chip.addEventListener('click', () => {
-          queryInput.value = example;
-          form.requestSubmit();
-        });
-        return chip;
-      }),
-    );
-  };
+  const examples = initExampleChips({
+    container: form.querySelector('#example-chips'),
+    concepts,
+    onPick: (text) => {
+      queryInput.value = text;
+      form.requestSubmit();
+    },
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -35,8 +27,7 @@ export function initForm({ form, onSubmit }) {
     }
   });
 
-  renderExamples();
-  return { refresh: renderExamples };
+  return { refresh: examples.reset };
 }
 
 function normalizeQuery(rawQuery) {

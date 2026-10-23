@@ -17,11 +17,6 @@ export function t(key) {
   return dictionaries[currentLang]?.[key] ?? dictionaries[FALLBACK_LANG]?.[key] ?? key;
 }
 
-export function tList(key) {
-  const value = t(key);
-  return Array.isArray(value) ? value : [];
-}
-
 export function getLang() {
   return currentLang;
 }

@@ -1,120 +1,120 @@
 - id: pale-petersburg
-  phrases_ru: [бледный петербург, питер, белые ночи, дождливый питер]
-  phrases_en: [pale petersburg, white nights]
+  phrases_ru: [бледный Петербург, Питер, белые ночи, дождливый Питер]
+  phrases_en: [pale Petersburg, white nights]
   tags: {fresh: 1.0, cooling: 0.6, blueberry: 0.5, black_tea: 0.4, lemon: 0.3}
   avoid: [mango, banana]
 
 - id: moscow-evening
-  phrases_ru: [вечерняя москва, москва, огни москвы]
-  phrases_en: [moscow evening, moscow]
+  phrases_ru: [вечерняя Москва, Москва, огни Москвы]
+  phrases_en: [Moscow evening, Moscow]
   tags: {black_tea: 0.6, cherry: 0.6, chocolate: 0.4, cinnamon: 0.3}
   avoid: [cucumber]
 
 - id: sunny-abkhazia
-  phrases_ru: [солнечная абхазия, абхазия, гагра, пицунда]
-  phrases_en: [sunny abkhazia, abkhazia]
+  phrases_ru: [солнечная Абхазия, Абхазия, Гагра, Пицунда]
+  phrases_en: [sunny Abkhazia, Abkhazia]
   tags: {mandarin: 1.0, feijoa: 0.7, persimmon: 0.5, fig: 0.4, honey: 0.3}
   avoid: [cola, energy_drink]
 
 - id: maldives-sunset
-  phrases_ru: [закат на мальдивах, мальдивы, райский остров]
-  phrases_en: [sunset in the maldives, maldives, paradise island]
+  phrases_ru: [закат на Мальдивах, Мальдивы, райский остров]
+  phrases_en: [sunset in the Maldives, Maldives, paradise island]
   tags: {mango: 1.0, passion_fruit: 0.8, coconut: 0.5, pineapple: 0.5, sweet: 0.4}
   avoid: [black_tea, coffee]
 
 - id: paris-morning
-  phrases_ru: [утро в париже, париж, парижское кафе]
-  phrases_en: [morning in paris, paris, parisian cafe]
+  phrases_ru: [утро в Париже, Париж, парижское кафе]
+  phrases_en: [morning in Paris, Paris, Parisian cafe]
   tags: {baked: 1.0, coffee: 0.6, cream: 0.4, raspberry: 0.4, rose: 0.3}
   avoid: [cola, energy_drink]
 
 - id: italian-summer
-  phrases_ru: [итальянское лето, италия, амальфи, сицилия]
-  phrases_en: [italian summer, italy, amalfi, sicily]
+  phrases_ru: [итальянское лето, Италия, Амальфи, Сицилия]
+  phrases_en: [Italian summer, Italy, Amalfi, Sicily]
   tags: {peach: 0.8, lemon: 0.7, basil: 0.5, wine: 0.4}
   avoid: [cola, condensed_milk]
 
 - id: tokyo-garden
-  phrases_ru: [токио, япония, японский сад, цветение сакуры]
-  phrases_en: [tokyo, japan, japanese garden, cherry blossom]
+  phrases_ru: [Токио, Япония, японский сад, цветение сакуры]
+  phrases_en: [Tokyo, Japan, Japanese garden, cherry blossom]
   tags: {yuzu: 0.8, green_tea: 0.8, lychee: 0.5, cherry: 0.4, jasmine: 0.3}
   avoid: [cola, condensed_milk]
 
 - id: istanbul
-  phrases_ru: [стамбул, турция, восточный базар, босфор]
-  phrases_en: [istanbul, turkey, eastern bazaar, bosphorus]
+  phrases_ru: [Стамбул, Турция, восточный базар, Босфор]
+  phrases_en: [Istanbul, Turkey, eastern bazaar, Bosphorus]
   tags: {rose: 0.7, pistachio: 0.7, double_apple: 0.6, black_tea: 0.5, cardamom: 0.4}
   avoid: [energy_drink]
 
 - id: marrakech
-  phrases_ru: [марракеш, марокко, медина]
-  phrases_en: [marrakech, morocco, medina]
+  phrases_ru: [Марракеш, Марокко, Медина]
+  phrases_en: [Marrakech, morocco, Medina]
   tags: {mint: 1.0, green_tea: 0.8, orange: 0.5, cinnamon: 0.3}
   avoid: [cola]
 
 - id: havana
-  phrases_ru: [гавана, куба, кубинский вечер]
-  phrases_en: [havana, cuba, cuban evening]
+  phrases_ru: [Гавана, Куба, кубинский вечер]
+  phrases_en: [Havana, Cuba, Cuban evening]
   tags: {rum: 0.8, tobacco_leaf: 0.6, lime: 0.5, mint: 0.5, coffee: 0.3}
   avoid: [cotton_candy, gum]
 
 - id: rio-carnival
-  phrases_ru: [карнавал в рио, рио, бразилия, самба]
-  phrases_en: [rio carnival, rio, brazil, samba]
+  phrases_ru: [карнавал в Рио, Рио, Бразилия, самба]
+  phrases_en: [Rio carnival, Rio, Brazil, samba]
   tags: {passion_fruit: 0.8, guava: 0.7, lime: 0.6, pineapple: 0.5}
   avoid: [black_tea, cinnamon]
 
 - id: thailand
-  phrases_ru: [таиланд, тайланд, пхукет, бангкок]
-  phrases_en: [thailand, phuket, bangkok]
+  phrases_ru: [Таиланд, Тайланд, Пхукет, Бангкок]
+  phrases_en: [Thailand, Phuket, Bangkok]
   tags: {lemongrass: 0.8, coconut: 0.7, mango: 0.6, lime: 0.6, chili: 0.3}
   avoid: [cinnamon, condensed_milk]
 
 - id: india-bazaar
-  phrases_ru: [индия, индийский базар, гоа]
-  phrases_en: [india, indian bazaar, goa]
+  phrases_ru: [Индия, индийский базар, Гоа]
+  phrases_en: [India, Indian bazaar, Goa]
   tags: {cardamom: 0.8, mango: 0.6, rose: 0.5, black_tea: 0.5, ginger: 0.4}
   avoid: [cola, energy_drink]
 
 - id: provence
-  phrases_ru: [прованс, лавандовые поля, юг франции]
-  phrases_en: [provence, lavender fields, south of france]
+  phrases_ru: [Прованс, лавандовые поля, юг Франции]
+  phrases_en: [Provence, lavender fields, south of France]
   tags: {lavender: 1.0, honey: 0.6, apricot: 0.5, lemon: 0.4}
   avoid: [cola, energy_drink]
 
 - id: rainy-london
-  phrases_ru: [дождливый лондон, лондон, англия, туманный альбион]
-  phrases_en: [rainy london, london, england]
+  phrases_ru: [дождливый Лондон, Лондон, Англия, туманный Альбион]
+  phrases_en: [rainy London, London, England]
   tags: {bergamot: 0.8, black_tea: 0.8, cream: 0.4, lemon: 0.3}
   avoid: [mango, coconut]
 
 - id: crimea-summer
-  phrases_ru: [крым, крымское лето, ялта, коктебель]
-  phrases_en: [crimea, crimean summer]
+  phrases_ru: [Крым, крымское лето, Ялта, Коктебель]
+  phrases_en: [Crimea, Crimean summer]
   tags: {watermelon: 0.7, grape: 0.6, peach: 0.6, lavender: 0.3, pine: 0.3}
   avoid: [coffee, condensed_milk]
 
 - id: georgia
-  phrases_ru: [грузия, тбилиси, грузинское застолье]
-  phrases_en: [georgia, tbilisi, georgian feast]
+  phrases_ru: [Грузия, Тбилиси, грузинское застолье]
+  phrases_en: [Georgia, Tbilisi, Georgian feast]
   tags: {pomegranate: 0.8, tarragon: 0.7, wine: 0.5, plum: 0.4, hazelnut: 0.3}
   avoid: [energy_drink]
 
 - id: mexico
-  phrases_ru: [мексика, мехико, текила]
-  phrases_en: [mexico, tequila]
+  phrases_ru: [Мексика, Мехико, текила]
+  phrases_en: [Mexico, tequila]
   tags: {lime: 0.8, chili: 0.5, mango: 0.5, watermelon: 0.4}
   avoid: [condensed_milk, lavender]
 
 - id: scandinavia
-  phrases_ru: [скандинавия, норвегия, фьорды, хюгге]
-  phrases_en: [scandinavia, norway, fjords, hygge]
+  phrases_ru: [Скандинавия, Норвегия, фьорды, хюгге]
+  phrases_en: [Scandinavia, Norway, fjords, hygge]
   tags: {blueberry: 0.7, cranberry: 0.6, pine: 0.6, cooling: 0.5, cardamom: 0.3}
   avoid: [mango, coconut]
 
 - id: new-york
-  phrases_ru: [нью-йорк, нью йорк, манхэттен]
-  phrases_en: [new york, manhattan]
+  phrases_ru: [Нью-Йорк, Нью Йорк, Манхэттен]
+  phrases_en: [New York, Manhattan]
   tags: {cheesecake: 0.7, coffee: 0.6, cola: 0.4, cherry: 0.3}
   avoid: [lavender]
 
@@ -131,8 +131,8 @@
   avoid: [cola, energy_drink]
 
 - id: mountains
-  phrases_ru: [горы, альпийский луг, в горах, альпы]
-  phrases_en: [mountains, alpine meadow, alps]
+  phrases_ru: [горы, альпийский луг, в горах, Альпы]
+  phrases_en: [mountains, alpine meadow, Alps]
   tags: {fresh: 0.7, pine: 0.6, honey: 0.5, elderflower: 0.5, cooling: 0.4}
   avoid: [cola]
 
@@ -155,14 +155,14 @@
   avoid: [energy_drink, coconut]
 
 - id: jungle
-  phrases_ru: [джунгли, тропический лес, амазонка]
-  phrases_en: [jungle, rainforest, amazon]
+  phrases_ru: [джунгли, тропический лес, Амазонка]
+  phrases_en: [jungle, rainforest, Amazon]
   tags: {passion_fruit: 0.7, guava: 0.6, pitaya: 0.5, lime: 0.5, basil: 0.3}
   avoid: [cinnamon, caramel]
 
 - id: oasis
   phrases_ru: [оазис, пустыня, восточная сказка]
-  phrases_en: [oasis, desert, arabian nights]
+  phrases_en: [oasis, desert, Arabian nights]
   tags: {fig: 0.7, rose: 0.5, pomegranate: 0.5, mint: 0.5, honey: 0.4}
   avoid: [energy_drink, cola]
 
@@ -191,8 +191,8 @@
   avoid: [cooling, watermelon]
 
 - id: new-year
-  phrases_ru: [новый год, новогодняя ночь, ёлка, рождество]
-  phrases_en: [new year, new year's eve, christmas, christmas tree]
+  phrases_ru: [Новый год, новогодняя ночь, ёлка, Рождество]
+  phrases_en: [New Year, New Year's Eve, Christmas, Christmas tree]
   tags: {mandarin: 1.0, pine: 0.6, cinnamon: 0.5, chocolate: 0.4, wine: 0.3}
   avoid: [watermelon, cucumber]
 
@@ -234,7 +234,7 @@
 
 - id: indian-summer
   phrases_ru: [бабье лето, тёплый сентябрь]
-  phrases_en: [indian summer, warm september]
+  phrases_en: [Indian summer, warm september]
   tags: {apricot: 0.6, pear: 0.6, honey: 0.6, sea_buckthorn: 0.4}
   avoid: [cooling]
 
@@ -323,20 +323,20 @@
   avoid: [cooling, cucumber]
 
 - id: cuba-libre
-  phrases_ru: [куба либре, ром кола, ром с колой]
-  phrases_en: [cuba libre, rum and coke]
+  phrases_ru: [Куба либре, ром кола, ром с колой]
+  phrases_en: [Cuba libre, rum and coke]
   tags: {cola: 0.9, rum: 0.8, lime: 0.6}
   avoid: [cream]
 
 - id: aperol-spritz
-  phrases_ru: [апероль, апероль шприц, спритц]
-  phrases_en: [aperol spritz, spritz]
+  phrases_ru: [Апероль, Апероль шприц, спритц]
+  phrases_en: [Aperol spritz, spritz]
   tags: {orange: 0.9, wine: 0.6, grapefruit: 0.5, bitter: 0.5}
   avoid: [cream, chocolate]
 
 - id: bellini
-  phrases_ru: [беллини, персиковое игристое]
-  phrases_en: [bellini, peach bubbly]
+  phrases_ru: [Беллини, персиковое игристое]
+  phrases_en: [Bellini, peach bubbly]
   tags: {peach: 1.0, wine: 0.8}
   avoid: [coffee]
 
@@ -372,13 +372,13 @@
 
 - id: irish-coffee
   phrases_ru: [айриш кофе, ирландский кофе]
-  phrases_en: [irish coffee]
+  phrases_en: [Irish coffee]
   tags: {coffee: 0.9, whiskey: 0.8, cream: 0.6}
   avoid: [cooling, lemon]
 
 - id: hugo-spritz
-  phrases_ru: [хуго, хуго шприц, коктейль с бузиной]
-  phrases_en: [hugo spritz, hugo]
+  phrases_ru: [Хуго, Хуго шприц, коктейль с бузиной]
+  phrases_en: [Hugo spritz, Hugo]
   tags: {elderflower: 0.8, mint: 0.6, lime: 0.5, wine: 0.5}
   avoid: [chocolate, caramel]
 
@@ -437,14 +437,14 @@
   avoid: [cooling]
 
 - id: black-forest
-  phrases_ru: [чёрный лес, шварцвальд, пьяная вишня]
-  phrases_en: [black forest, black forest cake]
+  phrases_ru: [чёрный лес, Шварцвальд, пьяная вишня]
+  phrases_en: [Black Forest, Black Forest cake]
   tags: {cherry: 0.9, chocolate: 0.8, cream: 0.5}
   avoid: [cooling]
 
 - id: napoleon
-  phrases_ru: [наполеон, торт наполеон, мильфей]
-  phrases_en: [napoleon cake, mille-feuille]
+  phrases_ru: [Наполеон, торт Наполеон, мильфей]
+  phrases_en: [Napoleon cake, mille-feuille]
   tags: {cream: 0.8, baked: 0.8, vanilla: 0.6}
   avoid: [cooling]
 
@@ -474,7 +474,7 @@
 
 - id: turkish-delight
   phrases_ru: [лукум, рахат-лукум, рахат лукум]
-  phrases_en: [turkish delight, lokum]
+  phrases_en: [Turkish delight, lokum]
   tags: {rose: 0.8, pistachio: 0.6, sweet: 0.6, lemon: 0.3}
   avoid: [cola, coffee]
 
@@ -654,7 +654,7 @@
 
 - id: breakfast
   phrases_ru: [завтрак, на завтрак, сытный завтрак, американский завтрак]
-  phrases_en: [breakfast, american breakfast, brunch]
+  phrases_en: [breakfast, American breakfast, brunch]
   tags: {pancake: 0.8, cereal: 0.6, maple_syrup: 0.5, coffee: 0.5, orange: 0.4}
   avoid: [whiskey, tobacco_leaf]
 
@@ -665,8 +665,8 @@
   avoid: [cucumber, eucalyptus]
 
 - id: maslenitsa
-  phrases_ru: [масленица, блины на масленицу, блинная неделя]
-  phrases_en: [maslenitsa, pancake week, shrovetide]
+  phrases_ru: [Масленица, блины на Масленицу, блинная неделя]
+  phrases_en: [Maslenitsa, pancake week, Shrovetide]
   tags: {pancake: 1.0, honey: 0.6, condensed_milk: 0.5, black_tea: 0.4, strawberry: 0.4}
   avoid: [cooling, cucumber]
 
