@@ -1,0 +1,21 @@
+title: Hookah Mixer
+description: Подбор миксов табака для кальяна по вкусу, крепости и брендам
+url: https://demansh.github.io
+baseurl: /hookah-mixer
+lang: ru
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - pyproject.toml
+  - uv.lock
+  - .python-version
+  - .venv
+  - vendor
+  - tools
+  - data-src
+  - eval
+  - notes
+  - models
+  - data-work

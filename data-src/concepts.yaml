@@ -1,0 +1,15 @@
+- id: pale-petersburg
+  phrases_ru: [бледный петербург, питер, белые ночи, дождливый питер]
+  phrases_en: [pale petersburg, white nights]
+  tags: {fresh: 1.0, cooling: 0.6, blueberry: 0.5, black_tea: 0.4, lemon: 0.3}
+  avoid: [mango, banana]
+  strength_hint: null
+  bowl_hint: null
+
+- id: berry-tea
+  phrases_ru: [ягодный чай, чай с ягодами, чай с малиной]
+  phrases_en: [berry tea, tea with berries]
+  tags: {black_tea: 1.0, raspberry: 0.7, blueberry: 0.5}
+  avoid: [cooling]
+  strength_hint: null
+  bowl_hint: null

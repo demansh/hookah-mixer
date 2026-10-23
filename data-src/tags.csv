@@ -1,0 +1,11 @@
+id,category,ru,en,synonyms_ru,synonyms_en,description_ru,description_en
+mango,fruit_tropical,манго,mango,манговый,,сладкий сочный спелый тропический фрукт,sweet juicy ripe tropical fruit
+banana,fruit_tropical,банан,banana,банановый,,сладкий мягкий сливочный тропический фрукт,sweet soft creamy tropical fruit
+raspberry,berry,малина,raspberry,малиновый,,сладкая ягода с лёгкой кислинкой,sweet berry with a slight tartness
+blueberry,berry,черника,blueberry,голубика|черничный,bilberry,сладкая лесная тёмная ягода,sweet dark forest berry
+grapefruit,citrus,грейпфрут,grapefruit,грейпфрутовый,,горьковато-кислый сочный цитрус,bitter-sour juicy citrus
+lemon,citrus,лимон,lemon,лимонный,,кислый яркий свежий цитрус,sour bright fresh citrus
+black_tea,tea,чёрный чай,black tea,чай,tea,терпкий насыщенный заваренный чай,astringent rich brewed tea
+cooling,cooling,холодок,cooling,лёд|ледяной|холод,ice|icy|frost,сильный освежающий холод без вкуса мяты,strong refreshing chill without mint flavor
+fresh,other,свежесть,freshness,свежий|освежающий,fresh|refreshing,лёгкий бодрящий освежающий характер,light invigorating refreshing character
+sweet,other,сладость,sweetness,сладкий,sweet,выраженная сладость,pronounced sweetness

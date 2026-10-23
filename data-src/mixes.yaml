@@ -1,0 +1,9 @@
+- name: Ягодный чай
+  queries_ru: [ягодный чай, чай с малиной]
+  queries_en: [berry tea]
+  bowl: phunnel
+  components:
+    - {id: musthave-pinkman, share: 60}
+    - {id: musthave-black-tea, share: 40}
+  rating: 4
+  comment: ""

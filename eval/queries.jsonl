@@ -1,0 +1,2 @@
+{"q":"манго с холодком","lang":"ru","type":"direct","must":["mango","cooling"],"ok":["fresh"],"forbid":["black_tea"],"strength":5}
+{"q":"Sunset in the Maldives","lang":"en","type":"abstract","must":["mango"],"ok":["banana","sweet"],"forbid":["cooling","black_tea"],"strength":4}

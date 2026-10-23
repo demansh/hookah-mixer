@@ -1,0 +1,41 @@
+---
+layout: default
+---
+<header class="app-header">
+  <h1 class="app-title" data-i18n="app_title"></h1>
+  <button type="button" class="lang-toggle" id="lang-toggle"></button>
+</header>
+
+<main class="app-main">
+  <form class="mix-form" id="mix-form" novalidate>
+    <div class="field">
+      <label class="field-label" for="query-input" data-i18n="query_label"></label>
+      <input class="text-input" id="query-input" name="query" type="text" maxlength="120"
+             autocomplete="off" enterkeyhint="search" data-i18n-placeholder="query_placeholder">
+      <div class="chip-row" id="example-chips"></div>
+      <p class="field-error" id="query-error" role="alert" hidden></p>
+    </div>
+
+    <div class="field">
+      <div class="field-label-row">
+        <label class="field-label" for="strength-input" data-i18n="strength_label"></label>
+        <output class="strength-output" id="strength-output" for="strength-input"></output>
+      </div>
+      <input class="range-input" id="strength-input" name="strength" type="range" min="1" max="10" step="1" value="5">
+    </div>
+
+    <fieldset class="field">
+      <legend class="field-label" data-i18n="brands_label"></legend>
+      <p class="field-hint" data-i18n="brands_hint"></p>
+      <div class="chip-row" id="brand-options"></div>
+    </fieldset>
+
+    <button type="submit" class="submit-button" data-i18n="submit"></button>
+  </form>
+
+  <section class="results" id="results" aria-live="polite"></section>
+</main>
+
+<footer class="app-footer">
+  <span data-i18n="build_label"></span> <span id="build-id"></span>
+</footer>

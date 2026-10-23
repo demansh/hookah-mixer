@@ -1,0 +1,8 @@
+conflicts:
+  - [cooling, banana, 0.4]
+synergies:
+  - [raspberry, black_tea, 0.3]
+bowls:
+  - {id: phunnel, ru: фаннел, en: phunnel, when: "heat_resistance<=medium || sweetness>=3"}
+  - {id: turkish, ru: турка (классика), en: turkish, when: "leaf==dark && strength>=7"}
+  - {id: fruit_bowl, ru: фруктовая чаша, en: fruit bowl, when: "bowl_hint==fruit_bowl"}

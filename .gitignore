@@ -6,3 +6,6 @@ _site/
 __pycache__/
 models/
 data-work/
+Gemfile.lock
+vendor/
+tools/sheets.env

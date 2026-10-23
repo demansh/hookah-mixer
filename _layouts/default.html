@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="{{ site.lang }}" data-baseurl="{{ site.baseurl }}" data-build="{{ site.github.build_revision | slice: 0, 7 }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <meta name="theme-color" content="#16120f">
+  <meta name="description" content="{{ site.description }}">
+  <title>{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+  <script type="module" src="{{ '/assets/js/app.js' | relative_url }}"></script>
+</head>
+<body>
+  {{ content }}
+  <script type="application/json" id="i18n-data">{{ site.data.i18n | jsonify }}</script>
+</body>
+</html>
