@@ -6,6 +6,8 @@ const MIN_MIX_SIZE = 3;
 const MAX_MIX_SIZE = 4;
 const MIN_REAL_FLAVORS = 2;
 const MAX_POOL_SIZE = 22;
+const MIN_POOL_SIZE = 10;
+const FALLBACK_MIN_AFFINITY = 0.25;
 const SEED_MIN_WEIGHT = 0.3;
 const NEIGHBOR_MIN_AFFINITY = 0.5;
 const NEIGHBOR_WEIGHT_FACTOR = 0.4;
@@ -45,11 +47,9 @@ export function buildPool(profile, catalog, graph) {
   const scores = new Map();
   const raise = (id, score) => scores.set(id, Math.max(scores.get(id) ?? 0, score));
   profile.weights.forEach((weight, id) => raise(id, weight));
+  const seedEntries = neighborSeeds(profile);
 
-  profile.weights.forEach((weight, id) => {
-    if (weight < SEED_MIN_WEIGHT || id === COOLING_ID) {
-      return;
-    }
+  seedEntries.forEach(([id, weight]) => {
     graph.getPartners(id).forEach((partner) => {
       if (partner.affinity >= NEIGHBOR_MIN_AFFINITY) {
         raise(partner.id, weight * partner.affinity * NEIGHBOR_WEIGHT_FACTOR);
@@ -76,8 +76,13 @@ export function buildPool(profile, catalog, graph) {
     return flavor && isIngredient(flavor) && !profile.excluded.has(id) && !profile.avoid.has(id);
   };
   const requiredIds = profile.required.filter(isAllowed);
+  const isOptionalCandidate = (id) => id !== COOLING_ID && isAllowed(id) && !requiredIds.includes(id);
+  const optionalCount = [...scores.keys()].filter(isOptionalCandidate).length;
+  if (optionalCount < MIN_POOL_SIZE) {
+    expandWithCategoryNeighbors(profile, ingredients, graph, scores, raise);
+  }
   const ranked = [...scores.entries()]
-    .filter(([id]) => id !== COOLING_ID && isAllowed(id) && !requiredIds.includes(id))
+    .filter(([id]) => isOptionalCandidate(id))
     .sort((left, right) => right[1] - left[1])
     .slice(0, MAX_POOL_SIZE - requiredIds.length);
 
@@ -93,6 +98,25 @@ export function buildPool(profile, catalog, graph) {
     optionalIds: ranked.map(([id]) => id),
     coolingPolicy: resolveCoolingPolicy(profile, scores, isAllowed(COOLING_ID)),
   };
+}
+
+function neighborSeeds(profile) {
+  const strongSeeds = [...profile.weights.entries()].filter(([, weight]) => weight >= SEED_MIN_WEIGHT);
+  const flavorSeeds = strongSeeds.filter(([id]) => id !== COOLING_ID);
+  return flavorSeeds.length > 0 ? flavorSeeds : strongSeeds;
+}
+
+function expandWithCategoryNeighbors(profile, ingredients, graph, scores, raise) {
+  const seeds = neighborSeeds(profile);
+  ingredients.forEach((flavor) => {
+    if (flavor.id === COOLING_ID || scores.has(flavor.id)) {
+      return;
+    }
+    const bestScore = Math.max(0, ...seeds.map(([seedId, weight]) => weight * graph.getPair(seedId, flavor.id).affinity));
+    if (bestScore >= FALLBACK_MIN_AFFINITY) {
+      raise(flavor.id, bestScore * NEIGHBOR_WEIGHT_FACTOR);
+    }
+  });
 }
 
 function resolveCoolingPolicy(profile, scores, isCoolingAllowed) {
@@ -152,7 +176,7 @@ function forEachCombination(items, size, callback) {
 function evaluate(ids, pool, profile, catalog, graph) {
   const flavors = ids.map((id) => catalog.flavorsById.get(id));
   const realFlavors = flavors.filter((flavor) => flavor.id !== COOLING_ID);
-  if (!passesStructure(realFlavors) || !canFillMix(flavors)) {
+  if (!passesStructure(realFlavors) || !canFillMix(flavors, new Set(pool.requiredIds))) {
     return null;
   }
   if (pool.coreIds.size > 0 && !realFlavors.some((flavor) => pool.coreIds.has(flavor.id))) {

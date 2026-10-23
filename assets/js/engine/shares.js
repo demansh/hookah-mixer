@@ -18,21 +18,25 @@ export function shareLimits(flavor) {
   return { min: FLAVOR_MIN_SHARE, max: INTENSITY_CAPS[flavor.intensity] };
 }
 
-export function canFillMix(flavors) {
-  const limits = flavors.map(shareLimits);
-  const maxTotal = limits.reduce((sum, limit) => sum + limit.max, 0);
-  const minTotal = limits.reduce((sum, limit) => sum + limit.min, 0);
-  return maxTotal >= TOTAL_SHARE && minTotal <= TOTAL_SHARE;
-}
-
-export function allocateShares(flavors, relevanceById, requiredIds = new Set()) {
-  const limits = flavors.map((flavor) => {
+export function mixLimits(flavors, requiredIds = new Set()) {
+  return flavors.map((flavor) => {
     const limit = shareLimits(flavor);
     if (!requiredIds.has(flavor.id)) {
       return limit;
     }
     return { ...limit, max: Math.min(MAX_FLAVOR_SHARE, limit.max + REQUIRED_CAP_BONUS) };
   });
+}
+
+export function canFillMix(flavors, requiredIds = new Set()) {
+  const limits = mixLimits(flavors, requiredIds);
+  const maxTotal = limits.reduce((sum, limit) => sum + limit.max, 0);
+  const minTotal = limits.reduce((sum, limit) => sum + limit.min, 0);
+  return maxTotal >= TOTAL_SHARE && minTotal <= TOTAL_SHARE;
+}
+
+export function allocateShares(flavors, relevanceById, requiredIds = new Set()) {
+  const limits = mixLimits(flavors, requiredIds);
   const primaryIndex = findPrimaryIndex(flavors, relevanceById);
   const rawWeights = flavors.map((flavor, index) => {
     const role = index === primaryIndex ? 'primary' : flavor.role;

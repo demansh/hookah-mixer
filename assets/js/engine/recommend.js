@@ -42,7 +42,13 @@ export async function recommend(request, catalog, page = 0) {
     return { profile: randomProfile, mixes: toMixes(selectPage(rankings, 0), rankings, catalog) };
   }
   const rankings = getRankings(request, parsedProfile, catalog);
-  return { profile: parsedProfile, mixes: toMixes(selectPage(rankings, page), rankings, catalog) };
+  const mixes = toMixes(selectPage(rankings, page), rankings, catalog);
+  if (mixes.length > 0 || page > 0) {
+    return { profile: parsedProfile, mixes };
+  }
+  const randomProfile = buildRandomProfile(parsedProfile, catalog);
+  const randomRankings = computeRankings(randomProfile, catalog);
+  return { profile: randomProfile, mixes: toMixes(selectPage(randomRankings, 0), randomRankings, catalog) };
 }
 
 function toMixes(selection, rankings, catalog) {
