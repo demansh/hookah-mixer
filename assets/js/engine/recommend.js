@@ -1,7 +1,7 @@
 import { parseQuery } from './profile.js';
 import { getGraph } from './graph.js';
 import { buildPool, generateCandidates } from './mixes.js';
-import { allocateShares } from './shares.js';
+import { allocateShares, findPrimaryIndex } from './shares.js';
 
 export const MIXES_PER_PAGE = 3;
 
@@ -91,6 +91,9 @@ function computeRankings(profile, catalog) {
     const source = accepted.length > 0 ? accepted : candidates;
     return [tier.id, [...source].sort((left, right) => tier.score(right) - tier.score(left))];
   }));
+  candidates.forEach((candidate) => {
+    candidate.primaryId = candidate.ids[findPrimaryIndex(candidate.flavors, relevanceFor(candidate, pool))];
+  });
   return { pool, byTier, graph };
 }
 
@@ -101,7 +104,9 @@ function selectPage(rankings, page) {
     selection = [];
     TIERS.forEach((tier) => {
       const ranked = rankings.byTier.get(tier.id);
-      const pick = findPick(ranked, usedKeys, selection, true) ?? findPick(ranked, usedKeys, selection, false);
+      const pick = findPick(ranked, usedKeys, selection, { distinctPrimary: true, distinctFlavors: true })
+        ?? findPick(ranked, usedKeys, selection, { distinctPrimary: false, distinctFlavors: true })
+        ?? findPick(ranked, usedKeys, selection, { distinctPrimary: false, distinctFlavors: false });
       if (pick) {
         usedKeys.add(candidateKey(pick));
         selection.push({ tierId: tier.id, candidate: pick });
@@ -111,16 +116,23 @@ function selectPage(rankings, page) {
   return selection;
 }
 
-function findPick(ranked, usedKeys, selection, requireDiversity) {
+function findPick(ranked, usedKeys, selection, { distinctPrimary, distinctFlavors }) {
   return ranked.find((candidate) => {
     if (usedKeys.has(candidateKey(candidate))) {
       return false;
     }
-    if (!requireDiversity) {
-      return true;
-    }
-    return selection.every(({ candidate: picked }) => similarity(candidate, picked) <= MAX_PAGE_SIMILARITY);
+    return selection.every(({ candidate: picked }) => {
+      if (distinctPrimary && picked.primaryId === candidate.primaryId) {
+        return false;
+      }
+      return !distinctFlavors || similarity(candidate, picked) <= MAX_PAGE_SIMILARITY;
+    });
   });
+}
+
+function relevanceFor(candidate, pool) {
+  const maxScore = Math.max(...pool.scores.values(), 1);
+  return new Map(candidate.ids.map((id) => [id, (pool.scores.get(id) ?? 0) / maxScore]));
 }
 
 function candidateKey(candidate) {
@@ -135,9 +147,7 @@ function similarity(left, right) {
 }
 
 function toMix(tierId, candidate, pool, catalog) {
-  const maxScore = Math.max(...pool.scores.values(), 1);
-  const relevanceById = new Map(candidate.ids.map((id) => [id, (pool.scores.get(id) ?? 0) / maxScore]));
-  const shares = allocateShares(candidate.flavors, relevanceById, new Set(pool.requiredIds));
+  const shares = allocateShares(candidate.flavors, relevanceFor(candidate, pool), new Set(pool.requiredIds));
   const components = candidate.ids
     .map((flavorId, index) => ({ flavorId, share: shares[index] }))
     .sort((left, right) => right.share - left.share);

@@ -1,6 +1,6 @@
 import { tList } from '../i18n.js';
 
-const MAX_QUERY_LENGTH = 120;
+const MAX_QUERY_LENGTH = 300;
 
 export function initForm({ form, onSubmit }) {
   const queryInput = form.querySelector('#query-input');

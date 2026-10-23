@@ -1,4 +1,4 @@
-import { initI18n, t, getOtherLang, setLang, onLangChange } from './i18n.js';
+import { initI18n, t, localize, getOtherLang, setLang, onLangChange } from './i18n.js';
 import { loadCatalog } from './data.js';
 import { initDebug, mountDebugPanel, debugLog } from './debug.js';
 import { initForm } from './ui/form.js';
@@ -40,7 +40,7 @@ async function main() {
     if (state.status) {
       renderStatus(resultsContainer, state.status);
     } else if (state.result) {
-      renderResult(resultsContainer, state.result, catalog);
+      renderResult(resultsContainer, state.result, catalog, excludeFlavor);
     }
   };
 
@@ -63,8 +63,23 @@ async function main() {
     render();
   };
 
+  const formElement = document.getElementById('mix-form');
+  const queryInput = document.getElementById('query-input');
+
+  function excludeFlavor(flavorId) {
+    if (state.result?.profile.excluded.has(flavorId)) {
+      return;
+    }
+    const addition = `${t('without')} ${localize(catalog.flavorsById.get(flavorId).label)}`;
+    const currentQuery = queryInput.value.trim();
+    queryInput.value = currentQuery ? `${currentQuery}, ${addition}` : addition;
+    queryInput.scrollLeft = queryInput.scrollWidth;
+    debugLog(`Exclude ${flavorId} → "${queryInput.value}"`);
+    formElement.requestSubmit();
+  }
+
   const form = initForm({
-    form: document.getElementById('mix-form'),
+    form: formElement,
     onSubmit: async (request) => {
       const isRepeat = state.result !== null && state.request?.query.toLowerCase() === request.query.toLowerCase();
       if (!isRepeat) {

@@ -43,7 +43,7 @@ export function allocateShares(flavors, relevanceById, requiredIds = new Set()) 
   return roundToStep(shares, limits);
 }
 
-function findPrimaryIndex(flavors, relevanceById) {
+export function findPrimaryIndex(flavors, relevanceById) {
   const canLead = (flavor) => flavor.role === 'base' || flavor.intensity <= PRIMARY_MAX_INTENSITY;
   const rank = (flavor) => (relevanceById.get(flavor.id) ?? 0) + (flavor.role === 'base' ? BASE_ROLE_BONUS : 0);
   let bestIndex = -1;
