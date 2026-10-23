@@ -8,6 +8,8 @@ const MIN_REAL_FLAVORS = 2;
 const MAX_POOL_SIZE = 22;
 const MIN_POOL_SIZE = 10;
 const FALLBACK_MIN_AFFINITY = 0.25;
+const PROPERTY_SEED_MIN_SCORE = 0.1;
+const PROPERTY_SEED_LIMIT = 4;
 const SEED_MIN_WEIGHT = 0.3;
 const NEIGHBOR_MIN_AFFINITY = 0.5;
 const NEIGHBOR_WEIGHT_FACTOR = 0.4;
@@ -79,7 +81,7 @@ export function buildPool(profile, catalog, graph) {
   const isOptionalCandidate = (id) => id !== COOLING_ID && isAllowed(id) && !requiredIds.includes(id);
   const optionalCount = [...scores.keys()].filter(isOptionalCandidate).length;
   if (optionalCount < MIN_POOL_SIZE) {
-    expandWithCategoryNeighbors(profile, ingredients, graph, scores, raise);
+    expandWithCategoryNeighbors(expansionSeeds(profile, scores), ingredients, graph, scores, raise);
   }
   const ranked = [...scores.entries()]
     .filter(([id]) => isOptionalCandidate(id))
@@ -106,8 +108,18 @@ function neighborSeeds(profile) {
   return flavorSeeds.length > 0 ? flavorSeeds : strongSeeds;
 }
 
-function expandWithCategoryNeighbors(profile, ingredients, graph, scores, raise) {
+function expansionSeeds(profile, scores) {
   const seeds = neighborSeeds(profile);
+  if (seeds.length > 0) {
+    return seeds;
+  }
+  return [...scores.entries()]
+    .filter(([id, score]) => id !== COOLING_ID && score >= PROPERTY_SEED_MIN_SCORE)
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, PROPERTY_SEED_LIMIT);
+}
+
+function expandWithCategoryNeighbors(seeds, ingredients, graph, scores, raise) {
   ingredients.forEach((flavor) => {
     if (flavor.id === COOLING_ID || scores.has(flavor.id)) {
       return;

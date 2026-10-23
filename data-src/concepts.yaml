@@ -585,3 +585,63 @@
   phrases_en: [summer evening, summer night, evening on the terrace, warm evening]
   tags: {peach: 0.6, strawberry: 0.5, watermelon: 0.5, mint: 0.4, cooling: 0.4}
   avoid: [cinnamon, clove]
+
+- id: category-alcohol
+  phrases_ru: [алкоголь, алкогольный, спиртное, что-то алкогольное, с алкоголем]
+  phrases_en: [alcohol, alcoholic, booze, boozy]
+  tags: {rum: 0.7, wine: 0.7, whiskey: 0.7}
+  avoid: [gum, cotton_candy]
+
+- id: category-cocktails
+  phrases_ru: [коктейль, коктейли, коктейльный, барный]
+  phrases_en: [cocktail, cocktails, bar]
+  tags: {lime: 0.6, mint: 0.5, rum: 0.5, pineapple: 0.5, orange: 0.4, wine: 0.4}
+  avoid: [tobacco_leaf, cookie]
+
+- id: category-herbs
+  phrases_ru: [травы, травяной, травянистый, что-то травяное]
+  phrases_en: [herbs, herbal, herby]
+  tags: {mint: 0.6, basil: 0.6, tarragon: 0.6, rosemary: 0.6, lemongrass: 0.6}
+  avoid: [condensed_milk, chocolate]
+
+- id: category-flowers
+  phrases_ru: [цветы, цветочный, что-то цветочное, букет]
+  phrases_en: [flowers, floral, flowery, bouquet]
+  tags: {rose: 0.6, jasmine: 0.6, lavender: 0.6, elderflower: 0.6, violet: 0.6}
+  avoid: [cola, energy_drink]
+
+- id: category-nuts
+  phrases_ru: [орехи, ореховый, орешки, что-то ореховое]
+  phrases_en: [nuts, nutty]
+  tags: {almond: 0.6, hazelnut: 0.6, pistachio: 0.6, peanut: 0.6}
+  avoid: [cucumber, eucalyptus]
+
+- id: category-candy
+  phrases_ru: [конфеты, конфетки, сладости, леденцы и конфеты]
+  phrases_en: [candy, sweets, candies]
+  tags: {fruit_candy: 0.6, gum: 0.6, barberry: 0.6, cotton_candy: 0.6}
+  avoid: [tobacco_leaf, whiskey]
+
+- id: category-drinks
+  phrases_ru: [напитки, газировки, лимонады, что-то газированное]
+  phrases_en: [drinks, sodas, soft drinks, fizzy]
+  tags: {cola: 0.6, lemonade: 0.6, energy_drink: 0.6, cream_soda: 0.6}
+  avoid: [tobacco_leaf]
+
+- id: category-vegetables
+  phrases_ru: [овощи, овощной, что-то овощное]
+  phrases_en: [vegetables, veggie, vegetable]
+  tags: {cucumber: 0.6, rhubarb: 0.6, aloe: 0.6}
+  avoid: [chocolate, caramel]
+
+- id: category-melons
+  phrases_ru: [бахча, бахчевые, арбуз и дыня]
+  phrases_en: [melons, watermelon and melon]
+  tags: {watermelon: 0.8, melon: 0.8, cooling: 0.4}
+  avoid: [coffee, chocolate]
+
+- id: category-spices
+  phrases_ru: [пряности, специи, пряный микс, что-то пряное]
+  phrases_en: [spices, spicy mix, something spicy]
+  tags: {cinnamon: 0.6, cardamom: 0.6, ginger: 0.6, clove: 0.5, spicy: 0.6}
+  avoid: [cooling, cucumber]
