@@ -4,9 +4,12 @@ import { initDebug, mountDebugPanel, debugLog } from './debug.js';
 import { initForm } from './ui/form.js';
 import { renderResult, renderStatus } from './ui/results.js';
 import { recommend } from './engine/recommend.js';
+import { parseQuery } from './engine/profile.js';
+import { resolveMood, createMoodIndicator } from './ui/mood.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const buildId = document.documentElement.dataset.build || 'local';
+const LIVE_MOOD_DELAY_MS = 120;
 
 async function main() {
   initDebug();
@@ -34,7 +37,9 @@ async function main() {
     return;
   }
 
-  const state = { request: null, page: 0, result: null, status: null };
+  const state = { request: null, page: 0, result: null, status: null, repeatCount: 0 };
+  const mood = createMoodIndicator(document.getElementById('mood'));
+  mood.set('wizard');
 
   const render = () => {
     if (state.status) {
@@ -44,21 +49,24 @@ async function main() {
     }
   };
 
-  const loadPage = async (request, page) => {
+  const loadPage = async (request, page, repeatCount) => {
     const startedAt = performance.now();
     try {
       let result = await recommend(request, catalog, page);
       let loadedPage = page;
-      if (page > 0 && result.mixes.length === 0) {
+      const wrapped = page > 0 && result.mixes.length === 0;
+      if (wrapped) {
         loadedPage = 0;
         result = await recommend(request, catalog, loadedPage);
       }
+      mood.set(resolveMood({ query: request.query, profile: result.profile, repeatCount, wrapped }));
       debugLog(`Request "${request.query}" page ${loadedPage} → ${result.mixes.length} mixes in ${Math.round(performance.now() - startedAt)} ms`);
       debugLog(`Profile: ${describeProfile(result.profile)}`);
-      Object.assign(state, { request, page: loadedPage, result, status: null });
+      Object.assign(state, { request, page: loadedPage, result, status: null, repeatCount });
     } catch (error) {
       debugLog(error.stack || error.message, 'error');
-      Object.assign(state, { request, page, result: null, status: 'error_engine' });
+      mood.set('dizzy');
+      Object.assign(state, { request, page, result: null, status: 'error_engine', repeatCount: 0 });
     }
     render();
   };
@@ -85,11 +93,21 @@ async function main() {
       if (!isRepeat) {
         renderStatus(resultsContainer, 'loading');
       }
-      await loadPage(request, isRepeat ? state.page + 1 : 0);
+      await loadPage(request, isRepeat ? state.page + 1 : 0, isRepeat ? state.repeatCount + 1 : 0);
     },
   });
 
+  let liveMoodTimer = null;
+  queryInput.addEventListener('input', () => {
+    clearTimeout(liveMoodTimer);
+    liveMoodTimer = setTimeout(() => {
+      const query = queryInput.value;
+      mood.set(resolveMood({ query, profile: parseQuery(query, catalog) }));
+    }, LIVE_MOOD_DELAY_MS);
+  });
+
   onLangChange(() => {
+    mood.refresh();
     updateLangToggle();
     form.refresh();
     render();

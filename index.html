@@ -9,6 +9,10 @@ layout: default
 <main class="app-main">
   <form class="mix-form" id="mix-form" novalidate>
     <div class="search-row">
+      <span class="mood" id="mood" role="status">
+        <span class="mood-emoji" aria-hidden="true">🧙</span>
+        <span class="mood-label visually-hidden"></span>
+      </span>
       <input class="text-input" id="query-input" name="query" type="text" maxlength="200"
              autocomplete="off" enterkeyhint="search" data-i18n-placeholder="query_placeholder"
              data-i18n-aria-label="query_label">

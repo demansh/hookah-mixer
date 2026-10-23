@@ -160,7 +160,7 @@ function buildProfile(matches, catalog, excludedIds) {
     const matchKey = `${type}:${id}:${negated}`;
     if (!seenMatches.has(matchKey)) {
       seenMatches.add(matchKey);
-      matched.push({ type, id, negated });
+      matched.push({ type, id, negated, partial: weightFactor < 1 });
     }
     if (negated) {
       if (type === 'flavor') {
@@ -185,6 +185,7 @@ function buildProfile(matches, catalog, excludedIds) {
   });
 
   excluded.forEach((id) => weights.delete(id));
+  const contradictions = required.filter((id) => excluded.has(id));
   const allowedRequired = required.filter((id) => !excluded.has(id)).slice(0, MAX_REQUIRED_FLAVORS);
   allowedRequired.forEach((id) => avoid.delete(id));
 
@@ -195,6 +196,7 @@ function buildProfile(matches, catalog, excludedIds) {
     excluded,
     avoid,
     matched,
+    contradictions,
     isEmpty: weights.size === 0 && properties.size === 0,
   };
 }
