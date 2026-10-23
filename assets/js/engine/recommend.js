@@ -8,7 +8,8 @@ export const MIXES_PER_PAGE = 3;
 const TIERS = [
   {
     id: 'classic',
-    accepts: (candidate) => candidate.novelty <= 0.5 && candidate.discoveryCount <= 1,
+    accepts: (candidate, pool) => candidate.novelty <= 0.5
+      && (candidate.discoveryCount <= 1 || pool.seedIds.size < MIN_SEEDS_FOR_DISCOVERY_LIMIT),
     score: (candidate) => candidate.baseScore + 0.15 * candidate.familiarity - 0.25 * candidate.novelty
       + (candidate.rarePairCount > 0 ? 0.05 : 0) - 0.1 * candidate.discoveryCount,
   },
@@ -24,6 +25,7 @@ const TIERS = [
   },
 ];
 const MAX_PAGE_SIMILARITY = 0.5;
+const MIN_SEEDS_FOR_DISCOVERY_LIMIT = 2;
 const RANKING_CACHE_SIZE = 5;
 const COOLING_ID = 'cooling';
 const RANDOM_PARTNER_MIN_AFFINITY = 0.4;
@@ -87,9 +89,11 @@ function computeRankings(profile, catalog) {
   const pool = buildPool(profile, catalog, graph);
   const candidates = generateCandidates(pool, profile, catalog, graph);
   const byTier = new Map(TIERS.map((tier) => {
-    const accepted = candidates.filter(tier.accepts);
-    const source = accepted.length > 0 ? accepted : candidates;
-    return [tier.id, [...source].sort((left, right) => tier.score(right) - tier.score(left))];
+    const byScore = (left, right) => tier.score(right) - tier.score(left);
+    const accepted = candidates.filter((candidate) => tier.accepts(candidate, pool)).sort(byScore);
+    const acceptedSet = new Set(accepted);
+    const rest = candidates.filter((candidate) => !acceptedSet.has(candidate)).sort(byScore);
+    return [tier.id, [...accepted, ...rest]];
   }));
   candidates.forEach((candidate) => {
     candidate.primaryId = candidate.ids[findPrimaryIndex(candidate.flavors, relevanceFor(candidate, pool))];
