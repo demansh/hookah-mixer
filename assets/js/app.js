@@ -13,6 +13,7 @@ const LIVE_MOOD_DELAY_MS = 120;
 
 async function main() {
   initDebug();
+  registerServiceWorker();
   initI18n();
   mountDebugPanel(buildId);
   document.getElementById('build-id').textContent = buildId;
@@ -112,6 +113,15 @@ async function main() {
     form.refresh();
     render();
   });
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  navigator.serviceWorker.register(`${baseUrl}/sw.js`, { scope: `${baseUrl}/` })
+    .then((registration) => debugLog(`Service worker: ${registration.active ? 'active' : 'installing'}`))
+    .catch((error) => debugLog(`Service worker failed: ${error.message}`, 'error'));
 }
 
 function describeProfile(profile) {
