@@ -51,8 +51,13 @@ yogurt,dessert,support,2,2,3,2,йогурт,yogurt,,yoghurt,кисломолоч
 condensed_milk,dessert,support,4,5,0,0,сгущёнка,condensed milk,сгущённое молоко|варёная сгущёнка,dulce de leche,очень сладкий густой молочный вкус,very sweet thick milky taste
 honey,dessert,support,4,5,0,0,мёд,honey,,,густая цветочная тягучая сладость,thick floral syrupy sweetness
 marshmallow,dessert,support,3,5,0,0,маршмеллоу,marshmallow,зефир|пастила,,воздушная ванильно-сахарная сладость,airy vanilla sugar sweetness
+maple_syrup,dessert,support,4,5,0,0,кленовый сироп,maple syrup,клён|кленовый,maple,густая древесно-карамельная сладость клёна,thick woody caramel sweetness of maple
 baked,bakery,support,3,3,0,0,выпечка,pastry,пирог|тесто|сдоба,pie|dough|baked goods,тёплое сдобное тесто и румяная корочка,warm buttery dough and golden crust
 cookie,bakery,support,3,4,0,0,печенье,cookie,бисквит|крекер,biscuit|cracker,хрустящая сладкая выпечка на сливочном масле,crunchy sweet butter baked treat
+popcorn,bakery,base,3,3,0,0,попкорн,popcorn,воздушная кукуруза|кукуруза,kettle corn|corn,маслянистая жареная кукуруза с карамельной сладостью,buttery toasted corn with caramel sweetness
+cereal,bakery,base,2,3,0,1,хлопья,cereal,сухой завтрак|кукурузные хлопья|мюсли|гранола|овсяные хлопья,cornflakes|corn flakes|granola|muesli|breakfast cereal,хрустящие поджаренные злаки с лёгкой сладостью,crunchy toasted grains with light sweetness
+pancake,bakery,base,3,4,0,0,блины,pancakes,блинчики|панкейки|оладьи|блин,pancake|crepes|crepe,тёплое мягкое сливочно-ванильное тесто со сковороды,warm soft buttery batter fresh from the pan
+waffle,bakery,support,3,4,0,0,вафли,waffles,вафля|вафельный|венские вафли|вафельный рожок,waffle|belgian waffle|waffle cone,хрустящее сладкое тесто с ванильной ноткой,crispy sweet batter with a vanilla note
 gum,candy,base,4,5,1,2,жвачка,bubble gum,жевательная резинка|бабл гам,chewing gum,сладкий фруктово-ванильный вкус жевательной резинки,sweet fruity vanilla chewing gum taste
 barberry,candy,accent,4,4,3,1,барбарис,barberry,барбариска,,кисло-сладкий вкус классических леденцов,tart-sweet taste of classic hard candy
 fruit_candy,candy,base,4,5,2,1,фруктовые конфеты,fruit candy,мармелад|леденцы|жевательные конфеты,gummies|jelly candy|hard candy,яркая сахарная фруктовая сладость,bright sugary fruit sweetness

@@ -1082,3 +1082,91 @@ aloe,lychee,0.4,rare,,
 aloe,strawberry,0.4,rare,,
 tobacco_leaf,cooling,-0.2,known,,
 tobacco_leaf,honey,0.4,rare,,
+popcorn,caramel,0.8,known,карамельный попкорн — запах кинотеатра,caramel popcorn smells like a movie theater
+popcorn,cola,0.6,known,попкорн с колой — вечер в кино,popcorn with cola is a night at the movies
+popcorn,vanilla,0.5,known,,
+popcorn,chocolate,0.5,rare,шоколад делает попкорн похожим на конфету,chocolate turns popcorn into a candy bar
+popcorn,peanut,0.5,rare,арахис и попкорн — сладко-солёная закуска,peanut and popcorn are a sweet-salty snack
+popcorn,cream,0.4,rare,,
+popcorn,cinnamon,0.4,rare,корица делает попкорн похожим на ярмарочное лакомство,cinnamon makes popcorn taste like a fair treat
+popcorn,strawberry,0.3,rare,,
+popcorn,cherry,0.3,rare,,
+popcorn,coffee,0.3,rare,,
+popcorn,condensed_milk,0.5,rare,сгущёнка превращает попкорн в тягучую карамель,condensed milk turns popcorn into chewy caramel
+popcorn,maple_syrup,0.6,rare,кленовый сироп делает попкорн похожим на американскую ярмарку,maple syrup makes popcorn taste like an American fair
+popcorn,cream_soda,0.4,rare,,
+popcorn,hazelnut,0.4,rare,,
+popcorn,banana,0.3,rare,,
+popcorn,cooling,-0.2,known,,
+popcorn,cucumber,-0.5,known,,
+popcorn,lemon,-0.2,known,,
+popcorn,mint,-0.3,known,,
+popcorn,tobacco_leaf,-0.3,known,,
+cereal,cream,0.7,known,хлопья с молоком — классический завтрак,cereal with milk is the classic breakfast
+cereal,strawberry,0.6,known,,
+cereal,banana,0.6,known,,
+cereal,blueberry,0.5,rare,черника с хлопьями — ягодный завтрак,blueberry with cereal is a berry breakfast
+cereal,honey,0.6,known,мёд с хлопьями — как медовые колечки,honey with cereal tastes like honey rings
+cereal,chocolate,0.5,known,шоколадные шарики к завтраку,chocolate cereal balls for breakfast
+cereal,yogurt,0.6,rare,йогурт с гранолой — лёгкий завтрак,yogurt with granola is a light breakfast
+cereal,raspberry,0.5,rare,,
+cereal,cinnamon,0.5,rare,корица с хлопьями — как пряные подушечки,cinnamon with cereal tastes like spiced cereal squares
+cereal,apple,0.5,rare,яблоко с гранолой — бодрый завтрак,apple with granola is an energizing breakfast
+cereal,maple_syrup,0.5,rare,,
+cereal,almond,0.5,rare,,
+cereal,fruit_candy,0.4,rare,фруктовые хлопья — разноцветные колечки из детства,fruity cereal is colorful childhood rings
+cereal,coffee,0.3,rare,,
+cereal,orange,0.3,rare,,
+cereal,cooling,-0.2,known,,
+cereal,cucumber,-0.4,known,,
+pancake,maple_syrup,0.9,known,панкейки с кленовым сиропом — американский завтрак,pancakes with maple syrup are an American breakfast
+pancake,banana,0.7,known,,
+pancake,honey,0.7,known,блины с мёдом — масленичная классика,pancakes with honey are a Maslenitsa classic
+pancake,condensed_milk,0.7,known,блины со сгущёнкой — вкус детства,pancakes with condensed milk taste like childhood
+pancake,strawberry,0.6,known,,
+pancake,blueberry,0.6,known,черничные панкейки — уютный завтрак,blueberry pancakes are a cozy breakfast
+pancake,raspberry,0.5,rare,,
+pancake,cream,0.6,known,,
+pancake,vanilla,0.5,known,,
+pancake,chocolate,0.5,known,,
+pancake,hazelnut,0.5,rare,блинчик с фундуком — как с нутеллой,a pancake with hazelnut tastes like nutella
+pancake,orange,0.5,rare,апельсин с блинами — креп сюзетт,orange with pancakes is crepe suzette
+pancake,apple,0.5,rare,,
+pancake,cinnamon,0.5,rare,,
+pancake,cherry,0.4,rare,,
+pancake,sea_buckthorn,0.3,rare,,
+pancake,black_tea,0.4,rare,блины к чаю — русская традиция,pancakes with tea are a Russian tradition
+pancake,coffee,0.4,rare,,
+pancake,cooling,-0.2,known,,
+pancake,cucumber,-0.5,known,,
+pancake,mint,-0.2,known,,
+waffle,vanilla,0.6,known,,
+waffle,ice_cream,0.7,known,мороженое в вафельном рожке — вкус лета,ice cream in a waffle cone tastes like summer
+waffle,chocolate,0.6,known,,
+waffle,caramel,0.6,known,,
+waffle,strawberry,0.6,known,венские вафли с клубникой,belgian waffles with strawberries
+waffle,banana,0.5,rare,,
+waffle,maple_syrup,0.6,rare,,
+waffle,cream,0.5,known,,
+waffle,condensed_milk,0.6,rare,вафли со сгущёнкой — советский вафельный торт,waffles with condensed milk are a Soviet wafer cake
+waffle,hazelnut,0.5,rare,,
+waffle,cherry,0.4,rare,,
+waffle,coffee,0.4,rare,,
+waffle,cooling,-0.1,known,,
+waffle,cucumber,-0.5,known,,
+waffle,mint,-0.2,known,,
+maple_syrup,vanilla,0.5,known,,
+maple_syrup,cinnamon,0.5,rare,,
+maple_syrup,banana,0.6,rare,банан с кленовым сиропом — запечённый десерт,banana with maple syrup is a baked dessert
+maple_syrup,hazelnut,0.5,rare,,
+maple_syrup,almond,0.4,rare,,
+maple_syrup,coffee,0.5,rare,кленовый сироп в кофе — осенний латте,maple syrup in coffee is an autumn latte
+maple_syrup,whiskey,0.6,rare,кленовый сироп с бурбоном — коктейль олд фэшн,maple syrup with bourbon is an old fashioned
+maple_syrup,apple,0.5,rare,,
+maple_syrup,pear,0.4,rare,,
+maple_syrup,tobacco_leaf,0.4,rare,,
+maple_syrup,cream,0.5,rare,,
+maple_syrup,blueberry,0.4,rare,,
+maple_syrup,cooling,-0.2,known,,
+maple_syrup,lemon,-0.1,known,,
+maple_syrup,cucumber,-0.5,known,,

@@ -209,8 +209,8 @@
   avoid: [chili, clove]
 
 - id: morning
-  phrases_ru: [утро, бодрое утро, завтрак]
-  phrases_en: [morning, breakfast, good morning]
+  phrases_ru: [утро, бодрое утро, раннее утро]
+  phrases_en: [morning, good morning, early morning]
   tags: {coffee: 0.7, orange: 0.6, fresh: 0.5, lemon: 0.4}
   avoid: [whiskey, tobacco_leaf]
 
@@ -645,3 +645,33 @@
   phrases_en: [spices, spicy mix, something spicy]
   tags: {cinnamon: 0.6, cardamom: 0.6, ginger: 0.6, clove: 0.5, spicy: 0.6}
   avoid: [cooling, cucumber]
+
+- id: oatmeal
+  phrases_ru: [овсянка, овсяная каша, каша, геркулес]
+  phrases_en: [oatmeal, porridge, oats]
+  tags: {cereal: 1.0, honey: 0.6, banana: 0.5, cream: 0.5}
+  avoid: [cooling, cola]
+
+- id: breakfast
+  phrases_ru: [завтрак, на завтрак, сытный завтрак, американский завтрак]
+  phrases_en: [breakfast, american breakfast, brunch]
+  tags: {pancake: 0.8, cereal: 0.6, maple_syrup: 0.5, coffee: 0.5, orange: 0.4}
+  avoid: [whiskey, tobacco_leaf]
+
+- id: cinema
+  phrases_ru: [кино, кинотеатр, в кино, киновечер, вечер с фильмом]
+  phrases_en: [cinema, movie theater, movies, movie night]
+  tags: {popcorn: 1.0, cola: 0.7, caramel: 0.5}
+  avoid: [cucumber, eucalyptus]
+
+- id: maslenitsa
+  phrases_ru: [масленица, блины на масленицу, блинная неделя]
+  phrases_en: [maslenitsa, pancake week, shrovetide]
+  tags: {pancake: 1.0, honey: 0.6, condensed_milk: 0.5, black_tea: 0.4, strawberry: 0.4}
+  avoid: [cooling, cucumber]
+
+- id: oatmeal-cookie
+  phrases_ru: [овсяное печенье]
+  phrases_en: [oatmeal cookie, oat cookie]
+  tags: {cookie: 1.0, cereal: 0.6, cinnamon: 0.5, honey: 0.3}
+  avoid: [cooling]
