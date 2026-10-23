@@ -1,14 +1,12 @@
 import { t, tList } from '../i18n.js';
-import { initExclusions } from './exclusions.js';
 
 const MAX_QUERY_LENGTH = 120;
 
-export function initForm({ form, catalog, onSubmit }) {
+export function initForm({ form, onSubmit }) {
   const queryInput = form.querySelector('#query-input');
   const queryError = form.querySelector('#query-error');
   const exampleChips = form.querySelector('#example-chips');
   const submitButton = form.querySelector('[type="submit"]');
-  const exclusions = initExclusions({ root: form.querySelector('#exclusions'), catalog });
 
   const hideError = () => {
     queryError.hidden = true;
@@ -24,7 +22,7 @@ export function initForm({ form, catalog, onSubmit }) {
         chip.addEventListener('click', () => {
           queryInput.value = example;
           hideError();
-          queryInput.focus();
+          form.requestSubmit();
         });
         return chip;
       }),
@@ -45,19 +43,14 @@ export function initForm({ form, catalog, onSubmit }) {
     queryInput.blur();
     submitButton.disabled = true;
     try {
-      await onSubmit({ query, excludedIds: exclusions.getExcludedIds() });
+      await onSubmit({ query });
     } finally {
       submitButton.disabled = false;
     }
   });
 
-  const refresh = () => {
-    renderExamples();
-    exclusions.refresh();
-  };
-
   renderExamples();
-  return { refresh };
+  return { refresh: renderExamples };
 }
 
 function normalizeQuery(rawQuery) {

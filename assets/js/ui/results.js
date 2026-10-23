@@ -1,4 +1,4 @@
-import { t, localize, getLang } from '../i18n.js';
+import { t, localize } from '../i18n.js';
 
 export function renderStatus(container, messageKey) {
   const message = document.createElement('p');
@@ -12,32 +12,11 @@ export function renderResult(container, result, catalog) {
     renderStatus(container, 'not_understood');
     return;
   }
-  const understood = createUnderstoodLine(result.profile, catalog);
   if (result.mixes.length === 0) {
-    const message = document.createElement('p');
-    message.className = 'status-message';
-    message.textContent = t('no_results');
-    container.replaceChildren(understood, message);
+    renderStatus(container, 'no_results');
     return;
   }
-  const title = document.createElement('h2');
-  title.className = 'results-title';
-  title.textContent = t('results_title');
-  container.replaceChildren(title, understood, ...result.mixes.map((mix) => createMixCard(mix, catalog)));
-}
-
-function createUnderstoodLine(profile, catalog) {
-  const conceptsById = new Map(catalog.concepts.map((concept) => [concept.id, concept]));
-  const labels = profile.matched.map(({ type, id, negated }) => {
-    const label = type === 'concept'
-      ? `«${conceptsById.get(id).phrases[getLang()]?.[0] ?? conceptsById.get(id).phrases.ru[0]}»`
-      : localize(catalog.flavorsById.get(id).label);
-    return negated ? `${t('without')}: ${label}` : label;
-  });
-  const line = document.createElement('p');
-  line.className = 'understood-line';
-  line.textContent = `${t('understood_as')} ${labels.join(' · ')}`;
-  return line;
+  container.replaceChildren(...result.mixes.map((mix) => createMixCard(mix, catalog)));
 }
 
 function createMixCard(mix, catalog) {

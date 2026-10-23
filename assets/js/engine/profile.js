@@ -3,12 +3,21 @@ import { tokenize, tokenMatchScore } from './text.js';
 const NEGATION_TOKENS = new Set(['без', 'кроме', 'no', 'without', 'except']);
 const CONJUNCTION_TOKENS = new Set(['и', 'или', 'а', 'and', 'or']);
 const MAX_REQUIRED_FLAVORS = 3;
+const PARTIAL_MIN_TOKEN_LENGTH = 4;
+const PARTIAL_MIN_SCORE = 0.75;
+const PARTIAL_WEIGHT_FACTOR = 0.5;
+const PARTIAL_MAX_CONCEPTS_PER_TOKEN = 2;
+const PARTIAL_STOP_TOKENS = new Set([
+  'хочу', 'хочется', 'кальян', 'кальяна', 'кальяне', 'микс', 'миксы', 'вкус', 'вкусный', 'вкусное', 'вкусная',
+  'очень', 'какой', 'какое', 'какую', 'нибудь', 'something', 'hookah', 'flavor', 'flavour', 'taste', 'some', 'with', 'like',
+]);
 const matcherCache = new WeakMap();
 
 export function parseQuery(query, catalog, excludedIds = []) {
   const tokens = tokenize(query);
   const matcher = getMatcher(catalog);
   const matches = [];
+  const unmatchedTokens = [];
   let isNegationActive = false;
   let index = 0;
   while (index < tokens.length) {
@@ -20,16 +29,42 @@ export function parseQuery(query, catalog, excludedIds = []) {
     }
     const match = findBestMatch(tokens, index, matcher);
     if (match) {
-      matches.push({ ...match.target, negated: isNegationActive });
+      matches.push({ ...match.target, negated: isNegationActive, weightFactor: 1 });
       index += match.length;
       continue;
     }
     if (!CONJUNCTION_TOKENS.has(token)) {
       isNegationActive = false;
+      unmatchedTokens.push(token);
     }
     index += 1;
   }
+  matches.push(...findPartialConceptMatches(unmatchedTokens, matcher));
   return buildProfile(matches, catalog, excludedIds);
+}
+
+function findPartialConceptMatches(unmatchedTokens, matcher) {
+  const partialMatches = [];
+  const seenConcepts = new Set();
+  unmatchedTokens
+    .filter((token) => token.length >= PARTIAL_MIN_TOKEN_LENGTH && !PARTIAL_STOP_TOKENS.has(token))
+    .forEach((token) => {
+      const conceptIds = new Set(
+        matcher.conceptTokens
+          .filter(({ token: conceptToken }) => tokenMatchScore(token, conceptToken) >= PARTIAL_MIN_SCORE)
+          .map(({ conceptId }) => conceptId),
+      );
+      if (conceptIds.size > PARTIAL_MAX_CONCEPTS_PER_TOKEN) {
+        return;
+      }
+      conceptIds.forEach((conceptId) => {
+        if (!seenConcepts.has(conceptId)) {
+          seenConcepts.add(conceptId);
+          partialMatches.push({ type: 'concept', id: conceptId, negated: false, weightFactor: PARTIAL_WEIGHT_FACTOR });
+        }
+      });
+    });
+  return partialMatches;
 }
 
 function getMatcher(catalog) {
@@ -63,7 +98,18 @@ function buildMatcher(catalog) {
     });
   });
   const maxTokens = Math.max(0, ...entriesByLength.keys());
-  return { entriesByLength, maxTokens };
+  const conceptTokens = [];
+  const seenConceptTokens = new Set();
+  catalog.concepts.forEach((concept) => {
+    [...concept.phrases.ru, ...concept.phrases.en].flatMap(tokenize).forEach((token) => {
+      const key = `${concept.id}:${token}`;
+      if (token.length >= PARTIAL_MIN_TOKEN_LENGTH && !PARTIAL_STOP_TOKENS.has(token) && !seenConceptTokens.has(key)) {
+        seenConceptTokens.add(key);
+        conceptTokens.push({ token, conceptId: concept.id });
+      }
+    });
+  });
+  return { entriesByLength, maxTokens, conceptTokens };
 }
 
 function findBestMatch(tokens, startIndex, matcher) {
@@ -110,7 +156,7 @@ function buildProfile(matches, catalog, excludedIds) {
   };
   const isProperty = (id) => catalog.flavorsById.get(id)?.kind === 'property';
 
-  matches.forEach(({ type, id, negated }) => {
+  matches.forEach(({ type, id, negated, weightFactor }) => {
     const matchKey = `${type}:${id}:${negated}`;
     if (!seenMatches.has(matchKey)) {
       seenMatches.add(matchKey);
@@ -125,7 +171,7 @@ function buildProfile(matches, catalog, excludedIds) {
     if (type === 'concept') {
       const concept = conceptsById.get(id);
       Object.entries(concept.tags).forEach(([tagId, weight]) => {
-        raiseWeight(isProperty(tagId) ? properties : weights, tagId, weight);
+        raiseWeight(isProperty(tagId) ? properties : weights, tagId, weight * weightFactor);
       });
       concept.avoid.forEach((tagId) => avoid.add(tagId));
     } else if (type === 'property') {

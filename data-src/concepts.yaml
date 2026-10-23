@@ -573,3 +573,15 @@
   phrases_en: [dessert, something dessert-like, treat]
   tags: {vanilla: 0.6, caramel: 0.6, cream: 0.6, baked: 0.5, creamy: 0.5}
   avoid: [cucumber, eucalyptus]
+
+- id: jam
+  phrases_ru: [варенье, бабушкино варенье, джем, конфитюр, повидло]
+  phrases_en: [jam, grandma's jam, preserves, jelly]
+  tags: {raspberry: 0.7, strawberry: 0.6, cherry: 0.5, apricot: 0.5, sweet: 0.5}
+  avoid: [cooling, cucumber]
+
+- id: summer-evening
+  phrases_ru: [летний вечер, летняя ночь, вечер на террасе, тёплый вечер]
+  phrases_en: [summer evening, summer night, evening on the terrace, warm evening]
+  tags: {peach: 0.6, strawberry: 0.5, watermelon: 0.5, mint: 0.4, cooling: 0.4}
+  avoid: [cinnamon, clove]

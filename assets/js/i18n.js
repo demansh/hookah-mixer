@@ -69,6 +69,9 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
     element.placeholder = t(element.dataset.i18nPlaceholder);
   });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+    element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
+  });
 }
 
 function readStoredLang() {

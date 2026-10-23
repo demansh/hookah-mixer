@@ -29,7 +29,7 @@ const COOLING_ID = 'cooling';
 const rankingCache = new Map();
 
 export async function recommend(request, catalog, page = 0) {
-  const profile = parseQuery(request.query, catalog, request.excludedIds);
+  const profile = parseQuery(request.query, catalog);
   if (profile.isEmpty) {
     return { profile, mixes: [] };
   }

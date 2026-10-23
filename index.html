@@ -8,33 +8,14 @@ layout: default
 
 <main class="app-main">
   <form class="mix-form" id="mix-form" novalidate>
-    <div class="field">
-      <label class="field-label" for="query-input" data-i18n="query_label"></label>
+    <div class="search-row">
       <input class="text-input" id="query-input" name="query" type="text" maxlength="120"
-             autocomplete="off" enterkeyhint="search" data-i18n-placeholder="query_placeholder">
-      <div class="chip-row" id="example-chips"></div>
-      <p class="field-error" id="query-error" role="alert" hidden></p>
+             autocomplete="off" enterkeyhint="search" data-i18n-placeholder="query_placeholder"
+             data-i18n-aria-label="query_label">
+      <button type="submit" class="submit-button" data-i18n="submit"></button>
     </div>
-
-    <details class="exclusions" id="exclusions">
-      <summary class="exclusions-summary">
-        <span data-i18n="exclusions_label"></span>
-        <span class="exclusions-count" id="exclusions-count"></span>
-      </summary>
-      <div class="exclusions-body">
-        <p class="field-hint" data-i18n="exclusions_hint"></p>
-        <div class="inline-row">
-          <input class="text-input" id="exclusion-input" type="text" list="flavor-options" maxlength="60"
-                 autocomplete="off" enterkeyhint="done" data-i18n-placeholder="exclusions_placeholder">
-          <button type="button" class="secondary-button" id="exclusion-add" data-i18n="exclusions_add"></button>
-        </div>
-        <datalist id="flavor-options"></datalist>
-        <p class="field-error" id="exclusion-error" role="alert" hidden></p>
-        <div class="chip-row" id="exclusion-chips"></div>
-      </div>
-    </details>
-
-    <button type="submit" class="submit-button" data-i18n="submit"></button>
+    <div class="chip-row" id="example-chips"></div>
+    <p class="field-error" id="query-error" role="alert" hidden></p>
   </form>
 
   <section class="results" id="results" aria-live="polite"></section>

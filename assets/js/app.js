@@ -62,7 +62,6 @@ async function main() {
 
   const form = initForm({
     form: document.getElementById('mix-form'),
-    catalog,
     onSubmit: async (request) => {
       moreButton.hidden = true;
       renderStatus(resultsContainer, 'loading');
