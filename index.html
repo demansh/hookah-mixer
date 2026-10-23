@@ -16,24 +16,29 @@ layout: default
       <p class="field-error" id="query-error" role="alert" hidden></p>
     </div>
 
-    <div class="field">
-      <div class="field-label-row">
-        <label class="field-label" for="strength-input" data-i18n="strength_label"></label>
-        <output class="strength-output" id="strength-output" for="strength-input"></output>
+    <details class="exclusions" id="exclusions">
+      <summary class="exclusions-summary">
+        <span data-i18n="exclusions_label"></span>
+        <span class="exclusions-count" id="exclusions-count"></span>
+      </summary>
+      <div class="exclusions-body">
+        <p class="field-hint" data-i18n="exclusions_hint"></p>
+        <div class="inline-row">
+          <input class="text-input" id="exclusion-input" type="text" list="flavor-options" maxlength="60"
+                 autocomplete="off" enterkeyhint="done" data-i18n-placeholder="exclusions_placeholder">
+          <button type="button" class="secondary-button" id="exclusion-add" data-i18n="exclusions_add"></button>
+        </div>
+        <datalist id="flavor-options"></datalist>
+        <p class="field-error" id="exclusion-error" role="alert" hidden></p>
+        <div class="chip-row" id="exclusion-chips"></div>
       </div>
-      <input class="range-input" id="strength-input" name="strength" type="range" min="1" max="10" step="1" value="5">
-    </div>
-
-    <fieldset class="field">
-      <legend class="field-label" data-i18n="brands_label"></legend>
-      <p class="field-hint" data-i18n="brands_hint"></p>
-      <div class="chip-row" id="brand-options"></div>
-    </fieldset>
+    </details>
 
     <button type="submit" class="submit-button" data-i18n="submit"></button>
   </form>
 
   <section class="results" id="results" aria-live="polite"></section>
+  <button type="button" class="secondary-button more-button" id="more-button" data-i18n="more_variants" hidden></button>
 </main>
 
 <footer class="app-footer">

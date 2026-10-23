@@ -1,7 +1,9 @@
+import { buildTermIndex } from './flavors.js';
+
 const CATALOG_FILES = {
-  brands: 'brands.json',
-  tags: 'tags.json',
-  tobaccos: 'tobaccos.json',
+  flavors: 'flavors.json',
+  graph: 'graph.json',
+  concepts: 'concepts.json',
 };
 
 export async function loadCatalog(baseUrl) {
@@ -12,8 +14,8 @@ export async function loadCatalog(baseUrl) {
     ]),
   );
   const catalog = Object.fromEntries(entries);
-  catalog.brandsById = new Map(catalog.brands.map((brand) => [brand.id, brand]));
-  catalog.tobaccosById = new Map(catalog.tobaccos.map((tobacco) => [tobacco.id, tobacco]));
+  catalog.flavorsById = new Map(catalog.flavors.map((flavor) => [flavor.id, flavor]));
+  catalog.termIndex = buildTermIndex(catalog.flavors);
   return catalog;
 }
 

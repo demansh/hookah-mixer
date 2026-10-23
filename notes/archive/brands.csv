@@ -1,0 +1,14 @@
+id,name,leaf,strength_default,heat_resistance,lines
+darkside,Darkside,dark,7,high,Core|Base|Rare
+musthave,MustHave,dark,6,medium,Standard
+blackburn,Black Burn,dark,8,high,Standard
+element,Element,dark,6,high,Air|Water|Earth|Fire
+sebero,Sebero,dark,4,medium,Classic|Black|Arctic Mix
+spectrum,Spectrum,dark,5,medium,Classic|Hard
+tangiers,Tangiers,dark,9,medium,Noir|Birquq|Burley|F-Line
+banger,Banger,dark,4,medium,Standard
+nash,Nash,dark,8,high,Standard
+chabacco,Chabacco,tea*,4,high,Medium|Strong
+alfakher,Al Fakher,blonde,3,low,Standard|Base
+adalya,Adalya,blonde,3,low,Standard|Black
+serbetli,Serbetli,blonde,2,low,Standard
