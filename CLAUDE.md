@@ -39,7 +39,7 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
   `graph.js` (пары и матрица категорий), `mixes.js` (пул, перебор, оценка), `shares.js` (доли),
   `recommend.js` (уровни, страницы, разные основы, случайный режим).
 - `assets/js/ui/` — `form.js`, `examples.js` (закольцованная лента чипов в обе стороны, ≤240 в DOM: чередуются понятные образы с `chip: true`
-  и ароматы), `results.js` (карточки, ➕/➖),
+  и ароматы), `results.js` (карточки, круглые кнопки +/− нарисованы в CSS),
   `mood.js` (эмодзи-мастер). `debug.js` — панель `?debug=1` (лог, sha сборки, сброс кэша).
 - `data-src/` — исходные данные (правит агент): `tags.csv` (102 аромата + 6 свойств: role, intensity, sweet,
   sour, fresh, синонимы, описания), `category_affinity.csv` (171 пара из 18 категорий), `pairings.csv`

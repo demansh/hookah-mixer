@@ -57,8 +57,8 @@ function createComponentRow({ flavorId, share }, catalog, actions) {
   barFill.style.width = `${Math.min(Math.max(share, 0), 100)}%`;
   bar.append(barFill);
 
-  const includeButton = createFlavorAction('➕', `${t('include_flavor')}: ${label}`, () => actions.onInclude(flavorId));
-  const excludeButton = createFlavorAction('➖', `${t('exclude_flavor')}: ${label}`, () => actions.onExclude(flavorId));
+  const includeButton = createFlavorAction('include', `${t('include_flavor')}: ${label}`, () => actions.onInclude(flavorId));
+  const excludeButton = createFlavorAction('exclude', `${t('exclude_flavor')}: ${label}`, () => actions.onExclude(flavorId));
   const buttons = document.createElement('span');
   buttons.className = 'flavor-actions';
   buttons.append(includeButton, excludeButton);
@@ -67,11 +67,10 @@ function createComponentRow({ flavorId, share }, catalog, actions) {
   return row;
 }
 
-function createFlavorAction(emoji, label, onClick) {
+function createFlavorAction(kind, label, onClick) {
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'flavor-action';
-  button.textContent = emoji;
+  button.className = `flavor-action flavor-action-${kind}`;
   button.setAttribute('aria-label', label);
   button.title = label;
   button.addEventListener('click', onClick);
