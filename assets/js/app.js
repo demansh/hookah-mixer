@@ -46,7 +46,7 @@ async function main() {
     if (state.status) {
       renderStatus(resultsContainer, state.status);
     } else if (state.result) {
-      renderResult(resultsContainer, state.result, catalog, excludeFlavor);
+      renderResult(resultsContainer, state.result, catalog, { onInclude: includeFlavor, onExclude: excludeFlavor });
     }
   };
 
@@ -85,6 +85,21 @@ async function main() {
     queryInput.value = currentQuery ? `${currentQuery}, ${addition}` : addition;
     queryInput.scrollLeft = queryInput.scrollWidth;
     debugLog(`Exclude ${flavorId} → "${queryInput.value}"`);
+    formElement.requestSubmit();
+  }
+
+  function includeFlavor(flavorId) {
+    if (state.result?.profile.required.includes(flavorId)) {
+      return;
+    }
+    const label = localize(catalog.flavorsById.get(flavorId).label);
+    const currentQuery = queryInput.value.trim();
+    const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+    queryInput.value = currentQuery
+      ? `${capitalizedLabel}, ${currentQuery.charAt(0).toLowerCase()}${currentQuery.slice(1)}`
+      : capitalizedLabel;
+    queryInput.scrollLeft = 0;
+    debugLog(`Include ${flavorId} → "${queryInput.value}"`);
     formElement.requestSubmit();
   }
 

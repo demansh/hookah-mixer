@@ -7,22 +7,22 @@ export function renderStatus(container, messageKey) {
   container.replaceChildren(message);
 }
 
-export function renderResult(container, result, catalog, onExclude) {
+export function renderResult(container, result, catalog, actions) {
   if (result.mixes.length === 0) {
     renderStatus(container, 'no_results');
     return;
   }
-  container.replaceChildren(...result.mixes.map((mix) => createMixCard(mix, catalog, onExclude)));
+  container.replaceChildren(...result.mixes.map((mix) => createMixCard(mix, catalog, actions)));
 }
 
-function createMixCard(mix, catalog, onExclude) {
+function createMixCard(mix, catalog, actions) {
   const card = document.createElement('article');
   card.className = `mix-card mix-card-${mix.tier}`;
   card.setAttribute('aria-label', t(`tier_${mix.tier}`));
 
   const components = document.createElement('ul');
   components.className = 'mix-components';
-  components.append(...mix.components.map((component) => createComponentRow(component, catalog, onExclude)));
+  components.append(...mix.components.map((component) => createComponentRow(component, catalog, actions)));
 
   card.append(components);
 
@@ -35,7 +35,7 @@ function createMixCard(mix, catalog, onExclude) {
   return card;
 }
 
-function createComponentRow({ flavorId, share }, catalog, onExclude) {
+function createComponentRow({ flavorId, share }, catalog, actions) {
   const flavor = catalog.flavorsById.get(flavorId);
   const label = flavor ? localize(flavor.label) : flavorId;
 
@@ -57,13 +57,23 @@ function createComponentRow({ flavorId, share }, catalog, onExclude) {
   barFill.style.width = `${Math.min(Math.max(share, 0), 100)}%`;
   bar.append(barFill);
 
-  const excludeButton = document.createElement('button');
-  excludeButton.type = 'button';
-  excludeButton.className = 'exclude-button';
-  excludeButton.textContent = '−';
-  excludeButton.setAttribute('aria-label', `${t('exclude_flavor')}: ${label}`);
-  excludeButton.addEventListener('click', () => onExclude(flavorId));
+  const includeButton = createFlavorAction('➕', `${t('include_flavor')}: ${label}`, () => actions.onInclude(flavorId));
+  const excludeButton = createFlavorAction('➖', `${t('exclude_flavor')}: ${label}`, () => actions.onExclude(flavorId));
+  const buttons = document.createElement('span');
+  buttons.className = 'flavor-actions';
+  buttons.append(includeButton, excludeButton);
 
-  row.append(name, shareValue, excludeButton, bar);
+  row.append(name, shareValue, buttons, bar);
   return row;
+}
+
+function createFlavorAction(emoji, label, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'flavor-action';
+  button.textContent = emoji;
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.addEventListener('click', onClick);
+  return button;
 }

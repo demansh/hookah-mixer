@@ -1,4 +1,5 @@
-Icons "sparkles" and "refresh-cw" in index.html are from Lucide (https://lucide.dev).
+Icons "sparkles" and "refresh-cw" in index.html and the "flask-conical" shape in assets/icons/icon.svg
+(and the PNG icons rendered from it) are from Lucide (https://lucide.dev).
 
 ISC License
 

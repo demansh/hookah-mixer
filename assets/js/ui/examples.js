@@ -4,21 +4,54 @@ import { isIngredient } from '../flavors.js';
 const BATCH_SIZE = 12;
 const PRELOAD_DISTANCE_PX = 240;
 const MAX_FILL_BATCHES = 5;
+const MAX_CHIPS = 240;
 
 export function initExampleChips({ container, concepts, flavors, onPick }) {
   const feed = createExampleFeed(concepts, flavors);
+  let isAdjusting = false;
 
-  const appendBatch = () => {
+  const createBatch = () => {
     const fragment = document.createDocumentFragment();
     feed.next(BATCH_SIZE, getLang()).forEach((text) => fragment.append(createChip(text, onPick)));
-    container.append(fragment);
+    return fragment;
+  };
+
+  const shiftScroll = (delta) => {
+    isAdjusting = true;
+    container.scrollLeft += delta;
+    isAdjusting = false;
+  };
+
+  const appendBatch = () => {
+    container.append(createBatch());
+    while (container.children.length > MAX_CHIPS) {
+      const widthBefore = container.scrollWidth;
+      container.firstElementChild.remove();
+      shiftScroll(container.scrollWidth - widthBefore);
+    }
+  };
+
+  const prependBatch = () => {
+    const widthBefore = container.scrollWidth;
+    container.prepend(createBatch());
+    shiftScroll(container.scrollWidth - widthBefore);
+    while (container.children.length > MAX_CHIPS) {
+      container.lastElementChild.remove();
+    }
   };
 
   const isNearEnd = () => container.scrollLeft + container.clientWidth >= container.scrollWidth - PRELOAD_DISTANCE_PX;
+  const isNearStart = () => container.scrollLeft <= PRELOAD_DISTANCE_PX;
 
   const fillVisibleArea = () => {
+    if (isAdjusting) {
+      return;
+    }
     for (let batch = 0; batch < MAX_FILL_BATCHES && isNearEnd(); batch += 1) {
       appendBatch();
+    }
+    for (let batch = 0; batch < MAX_FILL_BATCHES && isNearStart(); batch += 1) {
+      prependBatch();
     }
   };
 
@@ -27,6 +60,7 @@ export function initExampleChips({ container, concepts, flavors, onPick }) {
     container.replaceChildren();
     container.scrollLeft = 0;
     appendBatch();
+    prependBatch();
     fillVisibleArea();
   };
 

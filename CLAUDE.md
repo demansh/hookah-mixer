@@ -30,13 +30,16 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
 
 ## Структура
 - `index.html`, `_layouts/default.html` — страница, CSP, мета PWA; `_config.yml` — baseurl `/hookah-mixer`, exclude.
-- `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), «−», эмодзи, SW.
+- `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ➕ (аромат в начало
+  запроса → обязателен во всех миксах) и ➖ (дописывает «, без X»), эмодзи, SW.
 - Кнопка подбора — иконка Lucide: ✨ `sparkles` для нового запроса, ↻ `refresh-cw`, если запрос не менялся
-  (повторное нажатие = другие варианты); лицензия в `assets/icons/LICENSE-lucide.txt`.
+  (повторное нажатие = другие варианты); иконка PWA — колба Lucide `flask-conical`
+  (`assets/icons/icon.svg`, PNG 512/192/180 рендерятся из него); лицензия в `assets/icons/LICENSE-lucide.txt`.
 - `assets/js/engine/` — движок: `text.js` (токены, нечёткое сравнение словоформ), `profile.js` (разбор запроса),
   `graph.js` (пары и матрица категорий), `mixes.js` (пул, перебор, оценка), `shares.js` (доли),
   `recommend.js` (уровни, страницы, разные основы, случайный режим).
-- `assets/js/ui/` — `form.js`, `examples.js` (бесконечные чипы: чередуются понятные образы с `chip: true` и ароматы), `results.js` (карточки, «−»),
+- `assets/js/ui/` — `form.js`, `examples.js` (закольцованная лента чипов в обе стороны, ≤240 в DOM: чередуются понятные образы с `chip: true`
+  и ароматы), `results.js` (карточки, ➕/➖),
   `mood.js` (эмодзи-мастер). `debug.js` — панель `?debug=1` (лог, sha сборки, сброс кэша).
 - `data-src/` — исходные данные (правит агент): `tags.csv` (102 аромата + 6 свойств: role, intensity, sweet,
   sour, fresh, синонимы, описания), `category_affinity.csv` (171 пара из 18 категорий), `pairings.csv`

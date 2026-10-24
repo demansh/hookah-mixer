@@ -285,20 +285,25 @@ input:focus-visible {
   color: var(--color-accent-strong);
 }
 
-.exclude-button {
+.flavor-actions {
   grid-row: 1 / span 2;
   grid-column: 3;
+  display: flex;
+  gap: var(--space-1);
+}
+
+.flavor-action {
+  display: grid;
+  place-items: center;
   width: 32px;
   height: 32px;
   padding: 0;
   border: 1px solid var(--color-border);
   background: transparent;
-  color: var(--color-text-muted);
-  font-size: 1.125rem;
-  line-height: 1;
+  font: 14px/1 var(--font-emoji);
 }
 
-.exclude-button:active {
+.flavor-action:active {
   background: var(--color-surface-raised);
 }
 
