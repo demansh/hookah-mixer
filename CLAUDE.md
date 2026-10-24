@@ -31,6 +31,8 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
 ## Структура
 - `index.html`, `_layouts/default.html` — страница, CSP, мета PWA; `_config.yml` — baseurl `/hookah-mixer`, exclude.
 - `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), «−», эмодзи, SW.
+- Кнопка подбора — иконка Lucide: ✨ `sparkles` для нового запроса, ↻ `refresh-cw`, если запрос не менялся
+  (повторное нажатие = другие варианты); лицензия в `assets/icons/LICENSE-lucide.txt`.
 - `assets/js/engine/` — движок: `text.js` (токены, нечёткое сравнение словоформ), `profile.js` (разбор запроса),
   `graph.js` (пары и матрица категорий), `mixes.js` (пул, перебор, оценка), `shares.js` (доли),
   `recommend.js` (уровни, страницы, разные основы, случайный режим).

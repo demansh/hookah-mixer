@@ -167,13 +167,35 @@ input:focus-visible {
 
 .submit-button {
   flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--control-height);
   height: var(--control-height);
-  padding: 0 var(--space-4);
+  padding: 0;
   border: 0;
   border-radius: var(--radius);
   background: var(--color-accent);
   color: var(--color-accent-text);
-  font-weight: 700;
+}
+
+.submit-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.submit-button[data-mode="new"] .submit-icon-regenerate,
+.submit-button[data-mode="regenerate"] .submit-icon-new {
+  display: none;
+}
+
+.submit-button.is-changing .submit-icon {
+  animation: mood-pop 280ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit-button.is-changing .submit-icon {
+    animation: none;
+  }
 }
 
 .submit-button:disabled {

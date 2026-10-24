@@ -1,3 +1,4 @@
+import { t } from '../i18n.js';
 import { initExampleChips } from './examples.js';
 
 const MAX_QUERY_LENGTH = 300;
@@ -16,6 +17,25 @@ export function initForm({ form, concepts, flavors, onSubmit }) {
     },
   });
 
+  let submitMode = 'new';
+  const applySubmitMode = () => {
+    const label = t(submitMode === 'regenerate' ? 'regenerate' : 'submit');
+    submitButton.setAttribute('aria-label', label);
+    submitButton.title = label;
+  };
+  const setSubmitMode = (mode) => {
+    if (mode === submitMode) {
+      return;
+    }
+    submitMode = mode;
+    submitButton.dataset.mode = mode;
+    applySubmitMode();
+    submitButton.classList.remove('is-changing');
+    void submitButton.offsetWidth;
+    submitButton.classList.add('is-changing');
+  };
+  applySubmitMode();
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const query = normalizeQuery(queryInput.value);
@@ -28,9 +48,15 @@ export function initForm({ form, concepts, flavors, onSubmit }) {
     }
   });
 
-  return { refresh: examples.reset };
+  return {
+    refresh: () => {
+      examples.reset();
+      applySubmitMode();
+    },
+    setSubmitMode,
+  };
 }
 
-function normalizeQuery(rawQuery) {
+export function normalizeQuery(rawQuery) {
   return rawQuery.replace(/\s+/g, ' ').trim().slice(0, MAX_QUERY_LENGTH);
 }

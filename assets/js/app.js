@@ -1,7 +1,7 @@
 import { initI18n, t, localize, getOtherLang, setLang, onLangChange } from './i18n.js';
 import { loadCatalog } from './data.js';
 import { initDebug, mountDebugPanel, debugLog } from './debug.js';
-import { initForm } from './ui/form.js';
+import { initForm, normalizeQuery } from './ui/form.js';
 import { renderResult, renderStatus } from './ui/results.js';
 import { recommend } from './engine/recommend.js';
 import { parseQuery } from './engine/profile.js';
@@ -70,6 +70,7 @@ async function main() {
       Object.assign(state, { request, page, result: null, status: 'error_engine', repeatCount: 0 });
     }
     render();
+    updateSubmitMode();
   };
 
   const formElement = document.getElementById('mix-form');
@@ -100,8 +101,15 @@ async function main() {
     },
   });
 
+  function updateSubmitMode() {
+    const isSameQuery = state.result !== null && state.request !== null
+      && normalizeQuery(queryInput.value).toLowerCase() === state.request.query.toLowerCase();
+    form.setSubmitMode(isSameQuery ? 'regenerate' : 'new');
+  }
+
   let liveMoodTimer = null;
   queryInput.addEventListener('input', () => {
+    updateSubmitMode();
     clearTimeout(liveMoodTimer);
     liveMoodTimer = setTimeout(() => {
       const query = queryInput.value;
