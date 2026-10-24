@@ -305,72 +305,84 @@
   avoid: [energy_drink, chili]
 
 - id: mojito
+  chip: true
   phrases_ru: [мохито]
   phrases_en: [mojito]
   tags: {lime: 1.0, mint: 0.9, cooling: 0.5, rum: 0.4}
   avoid: [chocolate, caramel]
 
 - id: pina-colada
+  chip: true
   phrases_ru: [пина колада, пинаколада]
   phrases_en: [pina colada]
   tags: {pineapple: 1.0, coconut: 0.9, rum: 0.4, cream: 0.3}
   avoid: [black_tea]
 
 - id: mulled-wine
+  chip: true
   phrases_ru: [глинтвейн, горячее вино]
   phrases_en: [mulled wine, gluhwein]
   tags: {wine: 0.9, orange: 0.7, cinnamon: 0.7, clove: 0.6}
   avoid: [cooling, cucumber]
 
 - id: cuba-libre
+  chip: true
   phrases_ru: [Куба либре, ром кола, ром с колой]
   phrases_en: [Cuba libre, rum and coke]
   tags: {cola: 0.9, rum: 0.8, lime: 0.6}
   avoid: [cream]
 
 - id: aperol-spritz
+  chip: true
   phrases_ru: [Апероль, Апероль шприц, спритц]
   phrases_en: [Aperol spritz, spritz]
   tags: {orange: 0.9, wine: 0.6, grapefruit: 0.5, bitter: 0.5}
   avoid: [cream, chocolate]
 
 - id: bellini
+  chip: true
   phrases_ru: [Беллини, персиковое игристое]
   phrases_en: [Bellini, peach bubbly]
   tags: {peach: 1.0, wine: 0.8}
   avoid: [coffee]
 
 - id: margarita
+  chip: true
   phrases_ru: [маргарита]
   phrases_en: [margarita]
   tags: {lime: 1.0, sour: 0.5, orange: 0.4, cooling: 0.3}
   avoid: [cream, chocolate]
 
 - id: sangria
+  chip: true
   phrases_ru: [сангрия]
   phrases_en: [sangria]
   tags: {wine: 0.8, orange: 0.6, apple: 0.5, cherry: 0.4, cinnamon: 0.3}
   avoid: [cream]
 
 - id: masala-chai
+  chip: true
   phrases_ru: [масала чай, пряный чай, чай масала]
   phrases_en: [masala chai, chai latte, spiced tea]
   tags: {black_tea: 1.0, cardamom: 0.7, cinnamon: 0.6, ginger: 0.5, cream: 0.4}
   avoid: [cooling, watermelon]
 
 - id: pink-lemonade
+  chip: true
   phrases_ru: [розовый лимонад, пинк лимонад]
   phrases_en: [pink lemonade]
   tags: {raspberry: 0.8, grapefruit: 0.6, lemonade: 0.6, lemon: 0.5}
   avoid: [chocolate]
 
 - id: milk-tea
+  chip: true
   phrases_ru: [бабл ти, молочный чай, баббл ти]
   phrases_en: [bubble tea, milk tea, boba]
   tags: {black_tea: 0.7, cream: 0.7, caramel: 0.4, sweet: 0.5}
   avoid: [cooling]
 
 - id: irish-coffee
+  chip: true
   phrases_ru: [айриш кофе, ирландский кофе]
   phrases_en: [Irish coffee]
   tags: {coffee: 0.9, whiskey: 0.8, cream: 0.6}
@@ -383,6 +395,7 @@
   avoid: [chocolate, caramel]
 
 - id: berry-mors
+  chip: true
   phrases_ru: [морс, клюквенный морс, ягодный морс]
   phrases_en: [mors, cranberry drink, berry drink]
   tags: {cranberry: 0.9, raspberry: 0.4, honey: 0.3}
@@ -395,36 +408,42 @@
   avoid: [cooling]
 
 - id: gin-tonic
+  chip: true
   phrases_ru: [джин тоник, джин]
   phrases_en: [gin and tonic, gin]
   tags: {pine: 0.8, lime: 0.6, bitter: 0.4, cooling: 0.4}
   avoid: [chocolate, caramel]
 
 - id: matcha-latte
+  chip: true
   phrases_ru: [матча латте, латте с матчей]
   phrases_en: [matcha latte]
   tags: {green_tea: 1.0, cream: 0.7, vanilla: 0.3}
   avoid: [cola]
 
 - id: kompot
+  chip: true
   phrases_ru: [компот, бабушкин компот]
   phrases_en: [kompot, fruit compote]
   tags: {apple: 0.6, cherry: 0.6, plum: 0.5, apricot: 0.4}
   avoid: [coffee, whiskey]
 
 - id: berry-tea
+  chip: true
   phrases_ru: [ягодный чай, чай с ягодами, чай с малиной]
   phrases_en: [berry tea, tea with berries]
   tags: {black_tea: 1.0, raspberry: 0.7, blueberry: 0.5}
   avoid: [cooling]
 
 - id: apple-pie
+  chip: true
   phrases_ru: [яблочный пирог, шарлотка, штрудель, яблочный штрудель]
   phrases_en: [apple pie, apple strudel, strudel]
   tags: {apple: 1.0, baked: 0.8, cinnamon: 0.6, vanilla: 0.3}
   avoid: [cooling]
 
 - id: tiramisu
+  chip: true
   phrases_ru: [тирамису]
   phrases_en: [tiramisu]
   tags: {coffee: 0.8, cream: 0.8, chocolate: 0.5, cookie: 0.4}
@@ -437,48 +456,56 @@
   avoid: [cooling]
 
 - id: black-forest
-  phrases_ru: [чёрный лес, Шварцвальд, пьяная вишня]
-  phrases_en: [Black Forest, Black Forest cake]
+  chip: true
+  phrases_ru: [пьяная вишня, чёрный лес, Шварцвальд]
+  phrases_en: [Black Forest cake, Black Forest]
   tags: {cherry: 0.9, chocolate: 0.8, cream: 0.5}
   avoid: [cooling]
 
 - id: napoleon
-  phrases_ru: [Наполеон, торт Наполеон, мильфей]
+  chip: true
+  phrases_ru: [торт Наполеон, Наполеон, мильфей]
   phrases_en: [Napoleon cake, mille-feuille]
   tags: {cream: 0.8, baked: 0.8, vanilla: 0.6}
   avoid: [cooling]
 
 - id: creme-brulee
+  chip: true
   phrases_ru: [крем-брюле, крем брюле]
   phrases_en: [creme brulee]
   tags: {cream: 0.8, caramel: 0.8, vanilla: 0.7}
   avoid: [cooling]
 
 - id: panna-cotta
+  chip: true
   phrases_ru: [панна котта, панакота]
   phrases_en: [panna cotta]
   tags: {cream: 0.8, vanilla: 0.6, raspberry: 0.5}
   avoid: [cooling]
 
 - id: churros
+  chip: true
   phrases_ru: [чуррос]
   phrases_en: [churros]
   tags: {cinnamon: 0.8, baked: 0.7, chocolate: 0.5, caramel: 0.3}
   avoid: [cooling]
 
 - id: lemon-tart
+  chip: true
   phrases_ru: [лимонный тарт, лимонный пирог, лимонный курд]
   phrases_en: [lemon tart, lemon pie, lemon curd]
   tags: {lemon: 0.9, baked: 0.7, cream: 0.5, vanilla: 0.3}
   avoid: [cola]
 
 - id: turkish-delight
+  chip: true
   phrases_ru: [лукум, рахат-лукум, рахат лукум]
   phrases_en: [Turkish delight, lokum]
   tags: {rose: 0.8, pistachio: 0.6, sweet: 0.6, lemon: 0.3}
   avoid: [cola, coffee]
 
 - id: baklava
+  chip: true
   phrases_ru: [пахлава, баклава]
   phrases_en: [baklava]
   tags: {honey: 0.9, pistachio: 0.7, baked: 0.6, cinnamon: 0.3}
@@ -491,6 +518,7 @@
   avoid: [cooling, lemon]
 
 - id: gingerbread
+  chip: true
   phrases_ru: [пряник, имбирный пряник, тульский пряник]
   phrases_en: [gingerbread, gingerbread cookie]
   tags: {ginger: 0.8, cookie: 0.6, cinnamon: 0.6, honey: 0.6, clove: 0.3}
@@ -533,48 +561,56 @@
   avoid: [chocolate, caramel, condensed_milk]
 
 - id: exotic
+  chip: true
   phrases_ru: [экзотика, что-то экзотическое, экзотический]
-  phrases_en: [exotic, something exotic]
+  phrases_en: [something exotic, exotic]
   tags: {passion_fruit: 0.7, lychee: 0.6, pitaya: 0.6, guava: 0.6, papaya: 0.5}
   avoid: [apple, black_tea]
 
 - id: citrus-burst
-  phrases_ru: [цитрусовый взрыв, цитрусы, цитрусовый микс]
-  phrases_en: [citrus burst, citrus, citrus mix]
+  chip: true
+  phrases_ru: [цитрусы, цитрусовый взрыв, цитрусовый микс]
+  phrases_en: [citrus, citrus burst, citrus mix]
   tags: {lemon: 0.8, lime: 0.7, grapefruit: 0.6, orange: 0.6, sour: 0.5}
   avoid: [chocolate, condensed_milk]
 
 - id: sweet-tooth
-  phrases_ru: [сладкоежка, что-то сладкое, послаще]
-  phrases_en: [sweet tooth, something sweet, sweeter]
+  chip: true
+  phrases_ru: [что-то сладкое, сладкоежка, послаще]
+  phrases_en: [something sweet, sweet tooth, sweeter]
   tags: {sweet: 0.9, caramel: 0.6, cotton_candy: 0.5, condensed_milk: 0.5, marshmallow: 0.4}
   avoid: [grapefruit, tobacco_leaf]
 
 - id: sour-mood
-  phrases_ru: [кислячок, что-то кислое, кисленькое, покислее]
+  chip: true
+  phrases_ru: [что-то кислое, кислячок, кисленькое, покислее]
   phrases_en: [something sour, sour mix, tangy]
   tags: {sour: 1.0, redcurrant: 0.6, lime: 0.6, cranberry: 0.5, gooseberry: 0.4}
   avoid: [condensed_milk, caramel]
 
 - id: tropical-fruits
+  chip: true
   phrases_ru: [тропические фрукты, тропики, тропический микс, освежающие тропические фрукты]
   phrases_en: [tropical fruits, tropics, tropical mix, refreshing tropical fruits]
   tags: {mango: 0.8, pineapple: 0.7, passion_fruit: 0.6, guava: 0.4, fresh: 0.4}
   avoid: [black_tea, cinnamon]
 
 - id: fruit-mix
+  chip: true
   phrases_ru: [фрукты, фруктовый, фруктовый микс, что-то фруктовое]
   phrases_en: [fruits, fruity, fruit mix, something fruity]
   tags: {peach: 0.6, mango: 0.5, apple: 0.5, strawberry: 0.5, orange: 0.4}
   avoid: [tobacco_leaf, coffee]
 
 - id: dessert-mood
+  chip: true
   phrases_ru: [десерт, десертный, что-то десертное, вкусняшка]
   phrases_en: [dessert, something dessert-like, treat]
   tags: {vanilla: 0.6, caramel: 0.6, cream: 0.6, baked: 0.5, creamy: 0.5}
   avoid: [cucumber, eucalyptus]
 
 - id: jam
+  chip: true
   phrases_ru: [варенье, бабушкино варенье, джем, конфитюр, повидло]
   phrases_en: [jam, grandma's jam, preserves, jelly]
   tags: {raspberry: 0.7, strawberry: 0.6, cherry: 0.5, apricot: 0.5, sweet: 0.5}
@@ -587,66 +623,77 @@
   avoid: [cinnamon, clove]
 
 - id: category-alcohol
+  chip: true
   phrases_ru: [алкоголь, алкогольный, спиртное, что-то алкогольное, с алкоголем]
   phrases_en: [alcohol, alcoholic, booze, boozy]
   tags: {rum: 0.7, wine: 0.7, whiskey: 0.7}
   avoid: [gum, cotton_candy]
 
 - id: category-cocktails
+  chip: true
   phrases_ru: [коктейль, коктейли, коктейльный, барный]
   phrases_en: [cocktail, cocktails, bar]
   tags: {lime: 0.6, mint: 0.5, rum: 0.5, pineapple: 0.5, orange: 0.4, wine: 0.4}
   avoid: [tobacco_leaf, cookie]
 
 - id: category-herbs
+  chip: true
   phrases_ru: [травы, травяной, травянистый, что-то травяное]
   phrases_en: [herbs, herbal, herby]
   tags: {mint: 0.6, basil: 0.6, tarragon: 0.6, rosemary: 0.6, lemongrass: 0.6}
   avoid: [condensed_milk, chocolate]
 
 - id: category-flowers
+  chip: true
   phrases_ru: [цветы, цветочный, что-то цветочное, букет]
   phrases_en: [flowers, floral, flowery, bouquet]
   tags: {rose: 0.6, jasmine: 0.6, lavender: 0.6, elderflower: 0.6, violet: 0.6}
   avoid: [cola, energy_drink]
 
 - id: category-nuts
+  chip: true
   phrases_ru: [орехи, ореховый, орешки, что-то ореховое]
   phrases_en: [nuts, nutty]
   tags: {almond: 0.6, hazelnut: 0.6, pistachio: 0.6, peanut: 0.6}
   avoid: [cucumber, eucalyptus]
 
 - id: category-candy
+  chip: true
   phrases_ru: [конфеты, конфетки, сладости, леденцы и конфеты]
   phrases_en: [candy, sweets, candies]
   tags: {fruit_candy: 0.6, gum: 0.6, barberry: 0.6, cotton_candy: 0.6}
   avoid: [tobacco_leaf, whiskey]
 
 - id: category-drinks
+  chip: true
   phrases_ru: [напитки, газировки, лимонады, что-то газированное]
   phrases_en: [drinks, sodas, soft drinks, fizzy]
   tags: {cola: 0.6, lemonade: 0.6, energy_drink: 0.6, cream_soda: 0.6}
   avoid: [tobacco_leaf]
 
 - id: category-vegetables
+  chip: true
   phrases_ru: [овощи, овощной, что-то овощное]
   phrases_en: [vegetables, veggie, vegetable]
   tags: {cucumber: 0.6, rhubarb: 0.6, aloe: 0.6}
   avoid: [chocolate, caramel]
 
 - id: category-melons
-  phrases_ru: [бахча, бахчевые, арбуз и дыня]
-  phrases_en: [melons, watermelon and melon]
+  chip: true
+  phrases_ru: [арбуз и дыня, бахча, бахчевые]
+  phrases_en: [watermelon and melon, melons]
   tags: {watermelon: 0.8, melon: 0.8, cooling: 0.4}
   avoid: [coffee, chocolate]
 
 - id: category-spices
+  chip: true
   phrases_ru: [пряности, специи, пряный микс, что-то пряное]
   phrases_en: [spices, spicy mix, something spicy]
   tags: {cinnamon: 0.6, cardamom: 0.6, ginger: 0.6, clove: 0.5, spicy: 0.6}
   avoid: [cooling, cucumber]
 
 - id: oatmeal
+  chip: true
   phrases_ru: [овсянка, овсяная каша, каша, геркулес]
   phrases_en: [oatmeal, porridge, oats]
   tags: {cereal: 1.0, honey: 0.6, banana: 0.5, cream: 0.5}
@@ -671,6 +718,7 @@
   avoid: [cooling, cucumber]
 
 - id: oatmeal-cookie
+  chip: true
   phrases_ru: [овсяное печенье]
   phrases_en: [oatmeal cookie, oat cookie]
   tags: {cookie: 1.0, cereal: 0.6, cinnamon: 0.5, honey: 0.3}

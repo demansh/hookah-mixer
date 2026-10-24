@@ -61,6 +61,7 @@ def build_concepts() -> list[dict]:
     return [
         {
             "id": concept["id"],
+            "chip": concept.get("chip", False),
             "phrases": {"ru": concept.get("phrases_ru") or [], "en": concept.get("phrases_en") or []},
             "tags": concept["tags"],
             "avoid": concept.get("avoid") or [],

@@ -25,7 +25,7 @@ TAG_CATEGORIES = FLAVOR_CATEGORIES | {PROPERTY_CATEGORY}
 FLAVOR_ROLES = {"base", "accent", "support", COOLING_ROLE}
 FLAVOR_ATTRIBUTES = {"intensity": (1, 5), "sweet": (0, 5), "sour": (0, 5), "fresh": (0, 5)}
 FAMILIARITY_LEVELS = {"classic", "known", "rare"}
-CONCEPT_KEYS = {"id", "phrases_ru", "phrases_en", "tags", "avoid"}
+CONCEPT_KEYS = {"id", "chip", "phrases_ru", "phrases_en", "tags", "avoid"}
 QUERY_TYPES = {"direct", "compound", "abstract"}
 LANGS = {"ru", "en"}
 SECTIONS = ["tags", "category_affinity", "pairings", "concepts", "eval"]
@@ -264,6 +264,8 @@ def validate_concepts(tags: TagIndex, report: Report) -> set[str]:
             report.error(location, f"duplicate id '{concept_id}'")
             continue
         concept_ids.add(concept_id)
+        if "chip" in concept and not isinstance(concept["chip"], bool):
+            report.error(location, "chip must be true or false")
         unknown_keys = set(concept) - CONCEPT_KEYS
         if unknown_keys:
             report.warn(location, f"unknown keys ignored: {', '.join(sorted(unknown_keys))}")
@@ -292,7 +294,8 @@ def validate_concepts(tags: TagIndex, report: Report) -> set[str]:
     for phrase, owners in sorted(phrase_owners.items()):
         if len(owners) > 1:
             report.warn("concepts.yaml", f"phrase '{phrase}' is used by several concepts: {', '.join(sorted(owners))}")
-    report.info(f"{len(concept_ids)} concepts, {len(phrase_owners)} phrases")
+    chip_count = sum(1 for concept in concepts if isinstance(concept, dict) and concept.get("chip") is True)
+    report.info(f"{len(concept_ids)} concepts ({chip_count} shown as example chips), {len(phrase_owners)} phrases")
     return set(phrase_owners)
 
 

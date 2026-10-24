@@ -2,13 +2,14 @@ import { initExampleChips } from './examples.js';
 
 const MAX_QUERY_LENGTH = 300;
 
-export function initForm({ form, concepts, onSubmit }) {
+export function initForm({ form, concepts, flavors, onSubmit }) {
   const queryInput = form.querySelector('#query-input');
   const submitButton = form.querySelector('[type="submit"]');
 
   const examples = initExampleChips({
     container: form.querySelector('#example-chips'),
     concepts,
+    flavors,
     onPick: (text) => {
       queryInput.value = text;
       form.requestSubmit();

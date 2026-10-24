@@ -1,12 +1,12 @@
 import { getLang } from '../i18n.js';
+import { isIngredient } from '../flavors.js';
 
 const BATCH_SIZE = 12;
 const PRELOAD_DISTANCE_PX = 240;
 const MAX_FILL_BATCHES = 5;
-const LEADING_PREPOSITIONS = new Set(['в', 'во', 'на', 'с', 'со', 'у', 'за', 'по', 'at', 'in', 'on', 'with', 'by']);
 
-export function initExampleChips({ container, concepts, onPick }) {
-  const feed = createExampleFeed(concepts);
+export function initExampleChips({ container, concepts, flavors, onPick }) {
+  const feed = createExampleFeed(concepts, flavors);
 
   const appendBatch = () => {
     const fragment = document.createDocumentFragment();
@@ -44,40 +44,55 @@ function createChip(text, onPick) {
   return chip;
 }
 
-function createExampleFeed(concepts) {
-  let deck = [];
-  let lastConceptId = null;
-
-  const refill = () => {
-    deck = shuffle([...concepts]);
-    if (deck.length > 1 && deck.at(-1).id === lastConceptId) {
-      [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
-    }
-  };
+function createExampleFeed(concepts, flavors) {
+  const sources = [
+    createDeck(concepts.filter((concept) => concept.chip), (concept, lang) => concept.phrases[lang]?.[0] || concept.phrases.ru[0]),
+    createDeck(flavors.filter(isIngredient), (flavor, lang) => flavor.label[lang] || flavor.label.ru),
+  ].filter((source) => source.size > 0);
+  let turn = 0;
 
   return {
     reset() {
-      deck = [];
+      sources.forEach((source) => source.reset());
+      turn = Math.floor(Math.random() * sources.length);
     },
     next(count, lang) {
       const texts = [];
-      for (let index = 0; index < count && concepts.length > 0; index += 1) {
-        if (deck.length === 0) {
-          refill();
-        }
-        const concept = deck.pop();
-        lastConceptId = concept.id;
-        texts.push(capitalize(pickRandom(displayablePhrases(concept, lang))));
+      for (let index = 0; index < count && sources.length > 0; index += 1) {
+        const source = sources[turn % sources.length];
+        turn += 1;
+        texts.push(capitalize(source.draw(lang)));
       }
       return texts;
     },
   };
 }
 
-function displayablePhrases(concept, lang) {
-  const phrases = concept.phrases[lang]?.length ? concept.phrases[lang] : concept.phrases.ru;
-  const withoutLeadingPreposition = phrases.filter((phrase) => !LEADING_PREPOSITIONS.has(phrase.split(/\s+/)[0].toLowerCase()));
-  return withoutLeadingPreposition.length > 0 ? withoutLeadingPreposition : phrases;
+function createDeck(items, toText) {
+  let deck = [];
+  let lastItemId = null;
+
+  const refill = () => {
+    deck = shuffle([...items]);
+    if (deck.length > 1 && deck.at(-1).id === lastItemId) {
+      [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+    }
+  };
+
+  return {
+    size: items.length,
+    reset() {
+      deck = [];
+    },
+    draw(lang) {
+      if (deck.length === 0) {
+        refill();
+      }
+      const item = deck.pop();
+      lastItemId = item.id;
+      return toText(item, lang);
+    },
+  };
 }
 
 function shuffle(items) {
@@ -86,10 +101,6 @@ function shuffle(items) {
     [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
   }
   return items;
-}
-
-function pickRandom(items) {
-  return items[Math.floor(Math.random() * items.length)];
 }
 
 function capitalize(text) {
