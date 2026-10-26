@@ -320,10 +320,15 @@ input:focus-visible {
   gap: 6px;
 }
 
-.flavor-action {
-  position: relative;
+.flavor-action,
+.flavor-action-placeholder {
   width: 30px;
   height: 30px;
+}
+
+.flavor-action {
+  display: grid;
+  place-items: center;
   padding: 0;
   border: 1.5px solid currentColor;
   border-radius: 50%;
@@ -335,22 +340,17 @@ input:focus-visible {
   color: var(--color-accent-strong);
 }
 
-.flavor-action::before,
-.flavor-action-include::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 12px;
-  height: 2px;
-  border-radius: 1px;
-  background: currentColor;
-  transform: translate(-50%, -50%);
+.flavor-action-icon {
+  width: 16px;
+  height: 16px;
 }
 
-.flavor-action-include::after {
-  width: 2px;
+.pinned-mark {
+  width: 12px;
   height: 12px;
+  margin-left: 6px;
+  vertical-align: -1px;
+  color: var(--color-accent-strong);
 }
 
 .flavor-action:active {

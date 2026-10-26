@@ -2,6 +2,7 @@ import { initI18n, t, localize, getOtherLang, setLang, onLangChange } from './i1
 import { loadCatalog } from './data.js';
 import { initDebug, mountDebugPanel, debugLog } from './debug.js';
 import { initForm, normalizeQuery } from './ui/form.js';
+import { removeSpans } from './engine/text.js';
 import { renderResult, renderStatus } from './ui/results.js';
 import { recommend } from './engine/recommend.js';
 import { createSessionSeed } from './engine/random.js';
@@ -88,7 +89,10 @@ async function main() {
       return;
     }
     const addition = `${t('without')} ${localize(catalog.flavorsById.get(flavorId).label)}`;
-    const currentQuery = queryInput.value.trim();
+    const pinnedSpans = parseQuery(queryInput.value, catalog).matched
+      .filter((match) => match.type === 'flavor' && match.id === flavorId && !match.negated)
+      .flatMap((match) => match.spans);
+    const currentQuery = pinnedSpans.length > 0 ? removeSpans(queryInput.value, pinnedSpans) : queryInput.value.trim();
     queryInput.value = currentQuery ? `${currentQuery}, ${addition}` : addition;
     queryInput.scrollLeft = queryInput.scrollWidth;
     debugLog(`Exclude ${flavorId} → "${queryInput.value}"`);

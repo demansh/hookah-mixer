@@ -1,8 +1,8 @@
-import { tokenize, tokenMatchScore } from './text.js';
+import { tokenize, tokenizeWithSpans, tokenMatchScore } from './text.js';
 
 const NEGATION_TOKENS = new Set(['без', 'кроме', 'no', 'without', 'except']);
 const CONJUNCTION_TOKENS = new Set(['и', 'или', 'а', 'and', 'or']);
-const MAX_REQUIRED_FLAVORS = 3;
+export const MAX_REQUIRED_FLAVORS = 3;
 const PARTIAL_MIN_TOKEN_LENGTH = 4;
 const PARTIAL_MIN_SCORE = 0.75;
 const PARTIAL_WEIGHT_FACTOR = 0.5;
@@ -14,7 +14,8 @@ const PARTIAL_STOP_TOKENS = new Set([
 const matcherCache = new WeakMap();
 
 export function parseQuery(query, catalog, excludedIds = []) {
-  const tokens = tokenize(query);
+  const spannedTokens = tokenizeWithSpans(query);
+  const tokens = spannedTokens.map((entry) => entry.token);
   const matcher = getMatcher(catalog);
   const matches = [];
   const unmatchedTokens = [];
@@ -29,7 +30,8 @@ export function parseQuery(query, catalog, excludedIds = []) {
     }
     const match = findBestMatch(tokens, index, matcher);
     if (match) {
-      matches.push({ ...match.target, negated: isNegationActive, weightFactor: 1 });
+      const span = { start: spannedTokens[index].start, end: spannedTokens[index + match.length - 1].end };
+      matches.push({ ...match.target, negated: isNegationActive, weightFactor: 1, span });
       index += match.length;
       continue;
     }
@@ -149,18 +151,21 @@ function buildProfile(matches, catalog, excludedIds) {
   const excluded = new Set(excludedIds);
   const avoid = new Set();
   const matched = [];
-  const seenMatches = new Set();
+  const seenMatches = new Map();
 
   const raiseWeight = (map, id, weight) => {
     map.set(id, Math.max(map.get(id) ?? 0, weight));
   };
   const isProperty = (id) => catalog.flavorsById.get(id)?.kind === 'property';
 
-  matches.forEach(({ type, id, negated, weightFactor }) => {
+  matches.forEach(({ type, id, negated, weightFactor, span }) => {
     const matchKey = `${type}:${id}:${negated}`;
     if (!seenMatches.has(matchKey)) {
-      seenMatches.add(matchKey);
-      matched.push({ type, id, negated, partial: weightFactor < 1 });
+      seenMatches.set(matchKey, { type, id, negated, partial: weightFactor < 1, spans: [] });
+      matched.push(seenMatches.get(matchKey));
+    }
+    if (span) {
+      seenMatches.get(matchKey).spans.push(span);
     }
     if (negated) {
       if (type === 'flavor') {

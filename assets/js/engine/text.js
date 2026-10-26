@@ -7,6 +7,10 @@ const LONG_TOKEN_MAX_SUFFIX = 5;
 const LONG_TOKEN_PREFIX_SLACK = 2;
 const ENDING_BACKOFF = 2;
 const SOFT_FINAL_LETTERS = new Set(['й', 'ь']);
+const CONNECTOR_WORDS = 'со|с|и|а|and|with|&';
+const TRAILING_CONNECTOR_PATTERN = new RegExp(`(?:^|[\\s,])((?:${CONNECTOR_WORDS})\\s+)$`, 'iu');
+const LEADING_CONNECTOR_PATTERN = new RegExp(`^(?:${CONNECTOR_WORDS})\\s+`, 'iu');
+const COMMA_CONNECTOR_PATTERN = new RegExp(`,\\s*(?:${CONNECTOR_WORDS})\\s+`, 'giu');
 const EXACT_MATCH_SCORE = 1.1;
 const WORD_ENDING_PATTERN = new RegExp(
   '^(?:[ьй])?(?:ов|ев|ин|н|чн|ск|чк|к)?'
@@ -17,6 +21,34 @@ const TIE_BREAK_WEIGHT = 0.01;
 
 export function tokenize(text) {
   return normalizeTerm(text).match(TOKEN_PATTERN) ?? [];
+}
+
+export function tokenizeWithSpans(text) {
+  return [...text.matchAll(TOKEN_PATTERN)].map((match) => ({
+    token: normalizeTerm(match[0]),
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+}
+
+export function removeSpans(text, spans) {
+  let result = text;
+  [...spans].sort((left, right) => right.start - left.start).forEach(({ start, end }) => {
+    const leadingConnector = result.slice(0, start).match(TRAILING_CONNECTOR_PATTERN);
+    const cutStart = leadingConnector ? start - leadingConnector[1].length : start;
+    result = result.slice(0, cutStart) + result.slice(end);
+  });
+  return tidyQuery(result);
+}
+
+function tidyQuery(text) {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+,/g, ',')
+    .replace(/,(\s*,)+/g, ',')
+    .replace(COMMA_CONNECTOR_PATTERN, ', ')
+    .replace(/^[\s,]+|[\s,]+$/g, '')
+    .replace(LEADING_CONNECTOR_PATTERN, '');
 }
 
 export function tokenMatchScore(queryToken, entryToken) {

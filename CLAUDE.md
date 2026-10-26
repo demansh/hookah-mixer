@@ -34,8 +34,9 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
   под ними мастер + поле + кнопка). `ui/bottom-bar.js` пишет высоту панели в `--bottom-bar-height` (отступ
   области миксов) и подъём над клавиатурой iOS в `--keyboard-offset` (Visual Viewport API); для Chrome Android —
   `interactive-widget=resizes-content` в meta viewport. Debug-панель сверху; подвала нет.
-- `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ➕ (аромат в начало
-  запроса → обязателен во всех миксах) и ➖ (дописывает «, без X»), эмодзи, SW.
+- `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ♡+ (аромат в начало
+  запроса → закреплён, обязателен во всех миксах) и ♡̸ (вырезает закреплённое упоминание через `removeSpans` и
+  дописывает «, без X»), эмодзи, SW.
 - Кнопка подбора — иконка Lucide: ✨ `sparkles` для нового запроса, ↻ `refresh-cw`, если запрос не менялся
   (повторное нажатие = другие варианты); иконка PWA — колба Lucide `flask-conical`
   (`assets/icons/icon.svg`, PNG 512/192/180 рендерятся из него); лицензия в `assets/icons/LICENSE-lucide.txt`.
@@ -43,7 +44,8 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
   `graph.js` (пары и матрица категорий), `mixes.js` (пул, перебор, оценка), `shares.js` (доли),
   `recommend.js` (уровни, страницы, разные основы, случайный режим).
 - `assets/js/ui/` — `form.js`, `examples.js` (закольцованная лента чипов в обе стороны, ≤240 в DOM: чередуются понятные образы с `chip: true`
-  и ароматы), `results.js` (карточки, круглые кнопки +/− нарисованы в CSS),
+  и ароматы), `results.js` (карточки; круглые кнопки Lucide `heart-plus`/`heart-off`
+  из `icons.js`; закреплённый аромат помечен сердечком без ♡+; при 3 закреплённых ♡+ скрыта),
   `mood.js` (эмодзи-мастер). `debug.js` — панель `?debug=1` (лог, sha сборки, сброс кэша).
 - `data-src/` — исходные данные (правит агент): `tags.csv` (103 аромата + 6 свойств: role, intensity, sweet,
   sour, fresh, синонимы, описания), `category_affinity.csv` (171 пара из 18 категорий), `pairings.csv`
