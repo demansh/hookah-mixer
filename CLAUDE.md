@@ -30,6 +30,10 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
 
 ## Структура
 - `index.html`, `_layouts/default.html` — страница, CSP, мета PWA; `_config.yml` — baseurl `/hookah-mixer`, exclude.
+- Раскладка «как мессенджер»: шапка сверху, миксы в середине, внизу закреплённая панель (`form.bottom-bar`: чипы,
+  под ними мастер + поле + кнопка). `ui/bottom-bar.js` пишет высоту панели в `--bottom-bar-height` (отступ
+  области миксов) и подъём над клавиатурой iOS в `--keyboard-offset` (Visual Viewport API); для Chrome Android —
+  `interactive-widget=resizes-content` в meta viewport. Debug-панель сверху; подвала нет.
 - `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ➕ (аромат в начало
   запроса → обязателен во всех миксах) и ➖ (дописывает «, без X»), эмодзи, SW.
 - Кнопка подбора — иконка Lucide: ✨ `sparkles` для нового запроса, ↻ `refresh-cw`, если запрос не менялся

@@ -7,6 +7,7 @@ import { recommend } from './engine/recommend.js';
 import { createSessionSeed } from './engine/random.js';
 import { parseQuery } from './engine/profile.js';
 import { resolveMood, createMoodIndicator } from './ui/mood.js';
+import { initBottomBar } from './ui/bottom-bar.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const buildId = document.documentElement.dataset.build || 'local';
@@ -17,9 +18,9 @@ async function main() {
   initDebug();
   registerServiceWorker();
   initI18n();
+  initBottomBar(document.getElementById('mix-form'));
   mountDebugPanel(buildId);
   debugLog(`Seed: ${sessionSeed} (add ?seed=${sessionSeed} to reproduce)`);
-  document.getElementById('build-id').textContent = buildId;
 
   const langToggle = document.getElementById('lang-toggle');
   const updateLangToggle = () => {
@@ -51,6 +52,7 @@ async function main() {
     } else if (state.result) {
       renderResult(resultsContainer, state.result, catalog, { onInclude: includeFlavor, onExclude: excludeFlavor });
     }
+    document.getElementById('empty-hint').hidden = state.result !== null || state.status !== null;
   };
 
   const loadPage = async (request, page, repeatCount) => {
@@ -75,6 +77,7 @@ async function main() {
     }
     render();
     updateSubmitMode();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const formElement = document.getElementById('mix-form');
