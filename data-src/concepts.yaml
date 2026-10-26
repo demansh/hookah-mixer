@@ -259,7 +259,7 @@
 - id: relax
   phrases_ru: [расслабление, спокойствие, медитация, релакс]
   phrases_en: [relaxation, calm, meditation, relax]
-  tags: {lavender: 0.6, green_tea: 0.6, honey: 0.4, jasmine: 0.4, mint: 0.3}
+  tags: {lavender: 0.6, green_tea: 0.6, chamomile: 0.6, honey: 0.4, jasmine: 0.4, mint: 0.3}
   avoid: [energy_drink, chili, coffee]
 
 - id: energy
@@ -647,7 +647,7 @@
   chip: true
   phrases_ru: [цветы, цветочный, что-то цветочное, букет]
   phrases_en: [flowers, floral, flowery, bouquet]
-  tags: {rose: 0.6, jasmine: 0.6, lavender: 0.6, elderflower: 0.6, violet: 0.6}
+  tags: {rose: 0.6, jasmine: 0.6, lavender: 0.6, elderflower: 0.6, violet: 0.6, chamomile: 0.6}
   avoid: [cola, energy_drink]
 
 - id: category-nuts
@@ -723,3 +723,9 @@
   phrases_en: [oatmeal cookie, oat cookie]
   tags: {cookie: 1.0, cereal: 0.6, cinnamon: 0.5, honey: 0.3}
   avoid: [cooling]
+
+- id: bedtime
+  phrases_ru: [перед сном, вечерний чай, спокойной ночи, что-то успокаивающее]
+  phrases_en: [before bed, bedtime, good night, something soothing]
+  tags: {chamomile: 1.0, honey: 0.6, lavender: 0.5, vanilla: 0.3}
+  avoid: [energy_drink, coffee, chili]

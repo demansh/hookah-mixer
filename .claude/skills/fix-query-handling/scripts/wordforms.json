@@ -77,14 +77,18 @@
     "на завтрак": "breakfast",
     "в кино": "cinema",
     "масленица": "maslenitsa",
-    "овсяное печенье": "oatmeal-cookie"
+    "овсяное печенье": "oatmeal-cookie",
+    "ромашка": "chamomile",
+    "ромашковый": "chamomile",
+    "с ромашкой": "chamomile",
+    "chamomile": "chamomile",
+    "перед сном": "bedtime"
   },
   "shouldNotMatch": [
     "бутерброд с колбасой",
     "колбаса",
     "колбасой",
     "роман",
-    "ромашка",
     "машина",
     "работа",
     "розетка",

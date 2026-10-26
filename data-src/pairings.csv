@@ -1170,3 +1170,29 @@ maple_syrup,blueberry,0.4,rare,,
 maple_syrup,cooling,-0.2,known,,
 maple_syrup,lemon,-0.1,known,,
 maple_syrup,cucumber,-0.5,known,,
+chamomile,honey,0.8,known,ромашковый чай с мёдом — классика спокойного вечера,chamomile tea with honey is a calm evening classic
+chamomile,lemon,0.6,known,лимон освежает мягкую ромашку,lemon freshens soft chamomile
+chamomile,mint,0.5,known,,
+chamomile,green_tea,0.5,known,,
+chamomile,black_tea,0.4,rare,,
+chamomile,apple,0.5,rare,ромашка пахнет яблоком — недаром её зовут земляным яблоком,chamomile smells of apple — its name means earth apple
+chamomile,pear,0.5,rare,груша подчёркивает медовость ромашки,pear underlines the honeyed side of chamomile
+chamomile,apricot,0.5,rare,абрикос и ромашка — солнечный летний луг,apricot and chamomile are a sunny summer meadow
+chamomile,peach,0.5,rare,,
+chamomile,vanilla,0.5,rare,ваниль делает ромашку уютной как вечерний десерт,vanilla makes chamomile cozy like an evening dessert
+chamomile,cream,0.4,rare,сливки и ромашка — успокаивающий латте,cream and chamomile are a soothing latte
+chamomile,lavender,0.5,rare,лаванда и ромашка — травяной сбор для сна,lavender and chamomile are a bedtime herbal blend
+chamomile,elderflower,0.5,rare,,
+chamomile,rose,0.3,rare,,
+chamomile,lemongrass,0.4,rare,,
+chamomile,orange,0.4,rare,,
+chamomile,melon,0.4,rare,,
+chamomile,strawberry,0.3,rare,,
+chamomile,blueberry,0.3,rare,,
+chamomile,ginger,0.3,rare,,
+chamomile,cooling,0.2,rare,,
+chamomile,coffee,-0.3,known,кофе заглушает нежную ромашку,coffee drowns delicate chamomile
+chamomile,cola,-0.4,known,,
+chamomile,energy_drink,-0.4,known,,
+chamomile,chili,-0.4,known,,
+chamomile,tobacco_leaf,-0.2,known,,

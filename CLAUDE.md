@@ -41,10 +41,10 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
 - `assets/js/ui/` — `form.js`, `examples.js` (закольцованная лента чипов в обе стороны, ≤240 в DOM: чередуются понятные образы с `chip: true`
   и ароматы), `results.js` (карточки, круглые кнопки +/− нарисованы в CSS),
   `mood.js` (эмодзи-мастер). `debug.js` — панель `?debug=1` (лог, sha сборки, сброс кэша).
-- `data-src/` — исходные данные (правит агент): `tags.csv` (102 аромата + 6 свойств: role, intensity, sweet,
+- `data-src/` — исходные данные (правит агент): `tags.csv` (103 аромата + 6 свойств: role, intensity, sweet,
   sour, fresh, синонимы, описания), `category_affinity.csv` (171 пара из 18 категорий), `pairings.csv`
-  (1171 пара: affinity −1..1, familiarity classic/known/rare, пояснения RU/EN), `concepts.yaml` (113 образов,
-  651 фраза; имена собственные с заглавной — сравнение регистронезависимое).
+  (1197 пар: affinity −1..1, familiarity classic/known/rare, пояснения RU/EN), `concepts.yaml` (114 образов,
+  659 фраз, 48 с `chip: true`; имена собственные с заглавной — сравнение регистронезависимое).
 - `assets/data/*.json` — сборка из `data-src/` (руками не править). `tools/validate.py`, `tools/build.py`.
 - `sw.js` (Jekyll-шаблон: precache `site.static_files`, версия = sha сборки, network-first) + `manifest.webmanifest`.
 - `.claude/skills/fix-query-handling/` — скилл исправления ошибок обработки запросов + диагностические скрипты.
@@ -67,8 +67,8 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
 uv run tools/validate.py && uv run tools/build.py        # после любой правки data-src/
 S=.claude/skills/fix-query-handling/scripts/engine-harness.sh
 $S diagnose --pages=3 "запрос"    # разбор, пул, кандидаты, миксы, эмодзи
-$S words                          # регрессия словоформ (scripts/wordforms.json) — сейчас 78/78 и 13/13
-$S sweep                          # все ароматы/свойства/фразы образов — сейчас 879 запросов, 0 проблем
+$S words                          # регрессия словоформ (scripts/wordforms.json) — сейчас 83/83 и 12/12
+$S sweep                          # все ароматы/свойства/фразы образов — сейчас 889 запросов, 0 проблем
 ```
 Проверка UI: собрать страницу вручную (подставить Liquid в `_layouts/default.html`), отдать `python3 -m
 http.server`, снять скриншот headless Chrome (`--window-size=500,900`; уже 500px не работает).
@@ -80,7 +80,7 @@ Service worker проверять только через DevTools Protocol в �
   открытия после деплоя. Если пользователь видит «старое поведение» — сначала проверить кэш/sha в подвале.
 - У узких запросов (один редкий аромат) варианты кончаются к ~5-й перегенерации, затем выдача по кругу (😵).
 - Из-за правила разных основ главный аромат образа может отсутствовать в 2-й и 3-й карточке (осознанно).
-- Пояснения есть у ~300 из 1171 пар. Новизна (classic/known/rare) — оценка агента, уточнять по отзывам.
+- Пояснения есть у ~310 из 1197 пар. Новизна (classic/known/rare) — оценка агента, уточнять по отзывам.
 
 ## Что дальше (план из `~/ai/hookah-mixer/06-next-plan.md`)
 - [x] Шаг B — PWA и офлайн.
