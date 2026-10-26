@@ -175,6 +175,18 @@ function toMix(tierId, candidate, pool, catalog) {
   return { tier: tierId, components, note: pickNote(tierId, candidate) };
 }
 
+export function noteForMix(mix, catalog) {
+  const graph = getGraph(catalog);
+  const ids = mix.components.map((component) => component.flavorId);
+  const pairs = [];
+  for (let first = 0; first < ids.length; first += 1) {
+    for (let second = first + 1; second < ids.length; second += 1) {
+      pairs.push(graph.getPair(ids[first], ids[second]));
+    }
+  }
+  return pickNote(mix.tier, { pairs });
+}
+
 function pickNote(tierId, candidate) {
   const notedPairs = candidate.pairs.filter((pair) => pair.note);
   if (notedPairs.length === 0) {

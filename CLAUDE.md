@@ -34,6 +34,12 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
   под ними мастер + поле + кнопка). `ui/bottom-bar.js` пишет высоту панели в `--bottom-bar-height` (отступ
   области миксов) и подъём над клавиатурой iOS в `--keyboard-offset` (Visual Viewport API); для Chrome Android —
   `interactive-widget=resizes-content` в meta viewport. Debug-панель сверху; подвала нет.
+- Избранное и экраны: `favorites.js` (localStorage `hm.favorites`, версия схемы 1, ключ микса — состав с долями),
+  `mix-link.js` (кодирование `?mix=id.share,…&tier=&q=` и строгий разбор), `router.js` (экраны main / `?mix=` /
+  `?view=favorites` через History API, сохраняет `debug` и `seed`), `ui/views.js` (страница микса с «Подобрать
+  похожие», список избранного), `ui/mix-card.js` (общая карточка), `ui/share.js` (Web Share API, иначе буфер обмена
+  + `ui/toast.js`). Пояснение на странице микса пересчитывается `noteForMix`. **Id ароматов не переименовывать** —
+  на них ссылаются сохранённое избранное и отправленные ссылки.
 - Пустой экран до первого подбора: `#empty-state` — SVG-колба (`flask-conical`, без дыма;
   картинка прячется при высоте < 520px) и подсказка `empty_hint`.
 - `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ♡+ (аромат в начало

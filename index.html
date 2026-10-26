@@ -3,7 +3,13 @@ layout: default
 ---
 <header class="app-header">
   <h1 class="app-title" data-i18n="app_title"></h1>
-  <button type="button" class="lang-toggle" id="lang-toggle"></button>
+  <div class="header-actions">
+    <button type="button" class="favorites-button" id="favorites-button">
+      <svg class="favorites-button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span class="favorites-count" id="favorites-count" hidden></span>
+    </button>
+    <button type="button" class="lang-toggle" id="lang-toggle"></button>
+  </div>
 </header>
 
 <main class="app-main">
@@ -27,6 +33,10 @@ layout: default
   </div>
   <section class="results" id="results" aria-live="polite"></section>
 </main>
+
+<section class="view" id="mix-view" hidden></section>
+<section class="view" id="favorites-view" hidden></section>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <form class="mix-form bottom-bar" id="mix-form" novalidate>
   <div class="chip-row" id="example-chips"></div>

@@ -83,6 +83,54 @@ input:focus-visible {
   font-size: 1.125rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.favorites-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-accent-strong);
+}
+
+.favorites-button-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.favorites-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.favorites-count[hidden],
+.app-main[hidden],
+.bottom-bar[hidden],
+.view[hidden],
+.toast[hidden] {
+  display: none;
+}
+
 .lang-toggle {
   min-width: 36px;
   min-height: 36px;
@@ -415,10 +463,163 @@ input:focus-visible {
   background: var(--color-accent);
 }
 
-.mix-note {
-  margin: var(--space-2) 0 0;
+.mix-footer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.mix-footer-texts {
+  flex: 1;
+  min-width: 0;
+}
+
+.mix-note,
+.mix-caption {
+  margin: 0;
   font-size: 0.8125rem;
   color: var(--color-text-muted);
+}
+
+.mix-caption {
+  margin-top: var(--space-1);
+  font-style: italic;
+}
+
+.mix-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.icon-button:active {
+  background: var(--color-surface-raised);
+}
+
+.icon-button-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.favorite-button.is-active {
+  color: var(--color-accent-strong);
+}
+
+.favorite-button.is-active .icon-button-icon {
+  fill: currentColor;
+}
+
+.mix-tier-label {
+  margin: 0 0 var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mix-card-classic .mix-tier-label {
+  color: var(--color-tier-classic);
+}
+
+.mix-card-balanced .mix-tier-label {
+  color: var(--color-tier-balanced);
+}
+
+.mix-card-bold .mix-tier-label {
+  color: var(--color-tier-bold);
+}
+
+.component-row-plain {
+  grid-template-columns: 1fr auto;
+}
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 var(--space-4) calc(var(--space-6, 32px) + env(safe-area-inset-bottom));
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.view-title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  font-weight: 700;
+}
+
+.primary-button-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--bottom-bar-height, 0px) + var(--space-3) + env(safe-area-inset-bottom));
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: min(520px, calc(100% - 2 * var(--space-4)));
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  background: var(--color-surface-raised);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+}
+
+.toast-text {
+  overflow-wrap: anywhere;
+}
+
+.toast-action {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-weight: 700;
 }
 
 .debug-panel {

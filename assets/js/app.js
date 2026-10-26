@@ -9,6 +9,15 @@ import { createSessionSeed } from './engine/random.js';
 import { parseQuery } from './engine/profile.js';
 import { resolveMood, createMoodIndicator } from './ui/mood.js';
 import { initBottomBar } from './ui/bottom-bar.js';
+import { noteForMix } from './engine/recommend.js';
+import {
+  listFavorites, favoritesCount, isFavorite, toggleFavorite, removeFavorite, restoreFavorite, onFavoritesChange,
+} from './favorites.js';
+import { readRoute, navigate, canGoBackInApp } from './router.js';
+import { mixToParams, parseMixParams, mixFlavorQuery } from './mix-link.js';
+import { renderMixView, renderFavoritesView } from './ui/views.js';
+import { shareMix } from './ui/share.js';
+import { showToast } from './ui/toast.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const buildId = document.documentElement.dataset.build || 'local';
@@ -51,7 +60,14 @@ async function main() {
     if (state.status) {
       renderStatus(resultsContainer, state.status);
     } else if (state.result) {
-      renderResult(resultsContainer, state.result, catalog, { onInclude: includeFlavor, onExclude: excludeFlavor });
+      renderResult(resultsContainer, state.result, catalog, {
+        flavorActions: { onInclude: includeFlavor, onExclude: excludeFlavor },
+        mixActions: {
+          onToggleFavorite: (mix) => toggleFavorite(mix, currentQuery()),
+          onShare: (mix) => shareMix(mix, currentQuery(), catalog, baseUrl),
+          onOpen: (mix) => openMix(mix, currentQuery()),
+        },
+      });
     }
     document.getElementById('empty-state').hidden = state.result !== null || state.status !== null;
   };
@@ -143,11 +159,112 @@ async function main() {
     }, LIVE_MOOD_DELAY_MS);
   });
 
+  const mainElements = [document.querySelector('.app-main'), formElement];
+  const mixView = document.getElementById('mix-view');
+  const favoritesView = document.getElementById('favorites-view');
+  const favoritesButton = document.getElementById('favorites-button');
+  const favoritesCountBadge = document.getElementById('favorites-count');
+
+  function currentQuery() {
+    return state.request?.query ?? '';
+  }
+
+  function openMix(mix, query) {
+    navigate(mixToParams(mix, query));
+    renderRoute();
+  }
+
+  function goBack() {
+    if (canGoBackInApp()) {
+      history.back();
+      return;
+    }
+    navigate(new URLSearchParams(), { replace: true });
+    renderRoute();
+  }
+
+  function withNote(mix) {
+    return { ...mix, note: noteForMix(mix, catalog) };
+  }
+
+  function renderRoute() {
+    const route = readRoute();
+    mainElements.forEach((element) => {
+      element.hidden = route.view !== 'main';
+    });
+    mixView.hidden = route.view !== 'mix';
+    favoritesView.hidden = route.view !== 'favorites';
+    window.scrollTo(0, 0);
+    if (route.view === 'mix') {
+      const parsed = parseMixParams(route.params, catalog);
+      const mix = parsed ? withNote(parsed.mix) : null;
+      renderMixView(mixView, {
+        catalog,
+        mix,
+        query: parsed?.query ?? '',
+        isFavorite: mix ? isFavorite(mix.components) : false,
+        onToggleFavorite: () => toggleFavorite(mix, parsed.query),
+        onShare: () => shareMix(mix, parsed.query, catalog, baseUrl),
+        onSimilar: () => {
+          queryInput.value = mixFlavorQuery(mix, catalog);
+          navigate(new URLSearchParams());
+          renderRoute();
+          formElement.requestSubmit();
+        },
+        onBack: goBack,
+      });
+    } else if (route.view === 'favorites') {
+      renderFavoritesView(favoritesView, {
+        catalog,
+        items: listFavorites().map((item) => ({ mix: withNote(item), query: item.query })),
+        onOpen: (mix, query) => openMix(mix, query),
+        onShare: (mix, query) => shareMix(mix, query, catalog, baseUrl),
+        onDelete: (mix) => {
+          const removed = removeFavorite(mix.components);
+          if (removed) {
+            showToast(t('deleted_toast'), { actionLabel: t('undo'), onAction: () => restoreFavorite(removed) });
+          }
+        },
+        onBack: goBack,
+      });
+    } else {
+      render();
+    }
+  }
+
+  function updateFavoritesBadge() {
+    const count = favoritesCount();
+    favoritesCountBadge.textContent = count > 0 ? String(count) : '';
+    favoritesCountBadge.hidden = count === 0;
+    favoritesButton.setAttribute('aria-label', `${t('favorites_open')}${count > 0 ? ` (${count})` : ''}`);
+    favoritesButton.title = t('favorites_open');
+  }
+
+  favoritesButton.addEventListener('click', () => {
+    if (readRoute().view === 'favorites') {
+      return;
+    }
+    navigate(new URLSearchParams({ view: 'favorites' }));
+    renderRoute();
+  });
+
+  onFavoritesChange(() => {
+    updateFavoritesBadge();
+    if (readRoute().view === 'favorites') {
+      renderRoute();
+    }
+  });
+
+  window.addEventListener('popstate', renderRoute);
+  updateFavoritesBadge();
+  renderRoute();
+
   onLangChange(() => {
     mood.refresh();
     updateLangToggle();
+    updateFavoritesBadge();
     form.refresh();
-    render();
+    renderRoute();
   });
 }
 
