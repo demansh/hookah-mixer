@@ -34,8 +34,8 @@ Serverless PWA (GitHub Pages + Jekyll, Vanilla JS ES modules, mobile first, RU/E
   под ними мастер + поле + кнопка). `ui/bottom-bar.js` пишет высоту панели в `--bottom-bar-height` (отступ
   области миксов) и подъём над клавиатурой iOS в `--keyboard-offset` (Visual Viewport API); для Chrome Android —
   `interactive-widget=resizes-content` в meta viewport. Debug-панель сверху; подвала нет.
-- Пустой экран до первого подбора: `#empty-state` — SVG-колба (`flask-conical`) с тремя завитками дыма на CSS-анимации
-  (отключается при prefers-reduced-motion, картинка прячется при высоте < 520px) и подсказка `empty_hint`.
+- Пустой экран до первого подбора: `#empty-state` — SVG-колба (`flask-conical`, без дыма;
+  картинка прячется при высоте < 520px) и подсказка `empty_hint`.
 - `assets/js/app.js` — оркестрация: загрузка каталога, состояние (страница, серия повторов), ♡+ (аромат в начало
   запроса → закреплён, обязателен во всех миксах) и ♡̸ (вырезает закреплённое упоминание через `removeSpans` и
   дописывает «, без X»), эмодзи, SW.

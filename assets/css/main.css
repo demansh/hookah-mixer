@@ -114,7 +114,7 @@ input:focus-visible {
 }
 
 .empty-illustration {
-  width: min(40vw, 160px);
+  width: min(32vw, 120px);
   height: auto;
 }
 
@@ -135,54 +135,6 @@ input:focus-visible {
 .flask-bubble {
   fill: var(--color-bg);
   opacity: 0.8;
-}
-
-.smoke {
-  filter: blur(0.8px);
-}
-
-.smoke-wisp {
-  fill: none;
-  stroke: var(--color-text-muted);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 50 100;
-  stroke-dashoffset: 50;
-  opacity: 0;
-  animation: smoke-rise 4.5s ease-in-out infinite;
-}
-
-.smoke-wisp-2 {
-  animation-delay: 1.5s;
-}
-
-.smoke-wisp-3 {
-  animation-delay: 3s;
-}
-
-@keyframes smoke-rise {
-  0% {
-    stroke-dashoffset: 50;
-    opacity: 0;
-  }
-  25% {
-    opacity: 0.6;
-  }
-  80% {
-    opacity: 0.3;
-  }
-  100% {
-    stroke-dashoffset: -100;
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .smoke-wisp {
-    animation: none;
-    stroke-dasharray: none;
-    opacity: 0.25;
-  }
 }
 
 @media (max-height: 520px) {
