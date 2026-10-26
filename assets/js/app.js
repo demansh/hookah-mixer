@@ -4,18 +4,21 @@ import { initDebug, mountDebugPanel, debugLog } from './debug.js';
 import { initForm, normalizeQuery } from './ui/form.js';
 import { renderResult, renderStatus } from './ui/results.js';
 import { recommend } from './engine/recommend.js';
+import { createSessionSeed } from './engine/random.js';
 import { parseQuery } from './engine/profile.js';
 import { resolveMood, createMoodIndicator } from './ui/mood.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const buildId = document.documentElement.dataset.build || 'local';
 const LIVE_MOOD_DELAY_MS = 120;
+const sessionSeed = resolveSessionSeed();
 
 async function main() {
   initDebug();
   registerServiceWorker();
   initI18n();
   mountDebugPanel(buildId);
+  debugLog(`Seed: ${sessionSeed} (add ?seed=${sessionSeed} to reproduce)`);
   document.getElementById('build-id').textContent = buildId;
 
   const langToggle = document.getElementById('lang-toggle');
@@ -53,12 +56,13 @@ async function main() {
   const loadPage = async (request, page, repeatCount) => {
     const startedAt = performance.now();
     try {
-      let result = await recommend(request, catalog, page);
+      const seededRequest = { ...request, seed: sessionSeed };
+      let result = await recommend(seededRequest, catalog, page);
       let loadedPage = page;
       const wrapped = page > 0 && result.mixes.length === 0;
       if (wrapped) {
         loadedPage = 0;
-        result = await recommend(request, catalog, loadedPage);
+        result = await recommend(seededRequest, catalog, loadedPage);
       }
       mood.set(resolveMood({ query: request.query, profile: result.profile, repeatCount, wrapped }));
       debugLog(`Request "${request.query}" page ${loadedPage} → ${result.mixes.length} mixes in ${Math.round(performance.now() - startedAt)} ms`);
@@ -138,6 +142,11 @@ async function main() {
     form.refresh();
     render();
   });
+}
+
+function resolveSessionSeed() {
+  const seedParameter = new URLSearchParams(location.search).get('seed');
+  return seedParameter !== null && /^\d+$/.test(seedParameter) ? Number(seedParameter) : createSessionSeed();
 }
 
 function registerServiceWorker() {

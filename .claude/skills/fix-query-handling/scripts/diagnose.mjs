@@ -7,6 +7,8 @@ import { resolveMood } from './assets/js/ui/mood.js';
 
 const pagesArgument = process.argv.find((argument) => argument.startsWith('--pages='));
 const pageCount = pagesArgument ? Number(pagesArgument.split('=')[1]) : 1;
+const seedArgument = process.argv.find((argument) => argument.startsWith('--seed='));
+const seed = seedArgument ? Number(seedArgument.split('=')[1]) : undefined;
 const queries = process.argv.slice(2).filter((argument) => !argument.startsWith('--'));
 const catalog = loadCatalog();
 const graph = getGraph(catalog);
@@ -29,7 +31,7 @@ for (const query of queries) {
     console.log(`               core=${[...pool.coreIds].join(',') || '—'} cooling=${pool.coolingPolicy} candidates=${candidates.length}`);
   }
   for (let page = 0; page < pageCount; page += 1) {
-    const result = await recommend({ query }, catalog, page);
+    const result = await recommend({ query, seed }, catalog, page);
     const mood = resolveMood({ query, profile: result.profile, repeatCount: page });
     console.log(`page ${page}: mood=${mood}${result.profile.isRandom ? ' (random fallback)' : ''}`);
     result.mixes.forEach((mix) => {

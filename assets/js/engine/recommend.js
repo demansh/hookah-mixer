@@ -2,12 +2,14 @@ import { parseQuery } from './profile.js';
 import { getGraph } from './graph.js';
 import { buildPool, generateCandidates } from './mixes.js';
 import { allocateShares, findPrimaryIndex } from './shares.js';
+import { randomFor, signedNoise } from './random.js';
 
 export const MIXES_PER_PAGE = 3;
 
 const TIERS = [
   {
     id: 'classic',
+    jitter: 0.03,
     accepts: (candidate, pool) => candidate.novelty <= 0.5
       && (candidate.discoveryCount <= 1 || pool.seedIds.size < MIN_SEEDS_FOR_DISCOVERY_LIMIT),
     score: (candidate) => candidate.baseScore + 0.15 * candidate.familiarity - 0.25 * candidate.novelty
@@ -15,11 +17,13 @@ const TIERS = [
   },
   {
     id: 'balanced',
+    jitter: 0.035,
     accepts: (candidate) => candidate.novelty >= 0.25 && candidate.novelty <= 0.75,
     score: (candidate) => candidate.baseScore + 0.1 * candidate.novelty,
   },
   {
     id: 'bold',
+    jitter: 0.05,
     accepts: (candidate) => candidate.novelty >= 0.5 && candidate.minAffinity >= 0.2,
     score: (candidate) => 0.8 * candidate.baseScore + 0.35 * candidate.novelty,
   },
@@ -36,53 +40,56 @@ const rankingCache = new Map();
 
 export async function recommend(request, catalog, page = 0) {
   const parsedProfile = parseQuery(request.query, catalog);
+  const random = request.seed === undefined ? Math.random : randomFor(request.seed, request.query.toLowerCase(), page);
   if (parsedProfile.isEmpty) {
-    const randomProfile = buildRandomProfile(parsedProfile, catalog);
-    const rankings = computeRankings(randomProfile, catalog);
-    return { profile: randomProfile, mixes: toMixes(selectPage(rankings, 0), rankings, catalog) };
+    return randomResult(parsedProfile, catalog, random, request.seed);
   }
   const rankings = getRankings(request, parsedProfile, catalog);
   const mixes = toMixes(selectPage(rankings, page), rankings, catalog);
   if (mixes.length > 0 || page > 0) {
     return { profile: parsedProfile, mixes };
   }
-  const randomProfile = buildRandomProfile(parsedProfile, catalog);
-  const randomRankings = computeRankings(randomProfile, catalog);
-  return { profile: randomProfile, mixes: toMixes(selectPage(randomRankings, 0), randomRankings, catalog) };
+  return randomResult(parsedProfile, catalog, random, request.seed);
+}
+
+function randomResult(parsedProfile, catalog, random, seed) {
+  const randomProfile = buildRandomProfile(parsedProfile, catalog, random);
+  const rankings = computeRankings(randomProfile, catalog, seed);
+  return { profile: randomProfile, mixes: toMixes(selectPage(rankings, 0), rankings, catalog) };
 }
 
 function toMixes(selection, rankings, catalog) {
   return selection.map(({ tierId, candidate }) => toMix(tierId, candidate, rankings.pool, catalog));
 }
 
-function buildRandomProfile(parsedProfile, catalog) {
+function buildRandomProfile(parsedProfile, catalog, random) {
   const graph = getGraph(catalog);
   const isAllowed = (flavor) => flavor.kind === 'flavor' && flavor.id !== COOLING_ID && !parsedProfile.excluded.has(flavor.id);
   const ingredients = catalog.flavors.filter(isAllowed);
   const bases = ingredients.filter((flavor) => flavor.role === 'base');
-  const first = pickRandom(bases.length > 0 ? bases : ingredients);
+  const first = pickRandom(bases.length > 0 ? bases : ingredients, random);
   const partners = graph.getPartners(first.id)
     .filter((partner) => partner.affinity >= RANDOM_PARTNER_MIN_AFFINITY)
     .map((partner) => catalog.flavorsById.get(partner.id))
     .filter((flavor) => isAllowed(flavor) && flavor.category !== first.category);
-  const second = pickRandom(partners.length > 0 ? partners : ingredients.filter((flavor) => flavor.id !== first.id));
+  const second = pickRandom(partners.length > 0 ? partners : ingredients.filter((flavor) => flavor.id !== first.id), random);
   const weights = new Map([[first.id, 1], [second.id, RANDOM_SECOND_WEIGHT]]);
-  if (!parsedProfile.excluded.has(COOLING_ID) && Math.random() < RANDOM_COOLING_PROBABILITY) {
+  if (!parsedProfile.excluded.has(COOLING_ID) && random() < RANDOM_COOLING_PROBABILITY) {
     weights.set(COOLING_ID, RANDOM_COOLING_WEIGHT);
   }
   return { ...parsedProfile, weights, isEmpty: false, isRandom: true };
 }
 
-function pickRandom(items) {
-  return items[Math.floor(Math.random() * items.length)];
+function pickRandom(items, random) {
+  return items[Math.floor(random() * items.length)];
 }
 
 function getRankings(request, profile, catalog) {
-  const cacheKey = JSON.stringify([request.query.toLowerCase(), [...profile.excluded].sort()]);
+  const cacheKey = JSON.stringify([request.query.toLowerCase(), [...profile.excluded].sort(), request.seed ?? null]);
   if (rankingCache.has(cacheKey)) {
     return rankingCache.get(cacheKey);
   }
-  const rankings = computeRankings(profile, catalog);
+  const rankings = computeRankings(profile, catalog, request.seed);
   rankingCache.set(cacheKey, rankings);
   if (rankingCache.size > RANKING_CACHE_SIZE) {
     rankingCache.delete(rankingCache.keys().next().value);
@@ -90,12 +97,16 @@ function getRankings(request, profile, catalog) {
   return rankings;
 }
 
-function computeRankings(profile, catalog) {
+function computeRankings(profile, catalog, seed) {
   const graph = getGraph(catalog);
   const pool = buildPool(profile, catalog, graph);
   const candidates = generateCandidates(pool, profile, catalog, graph);
   const byTier = new Map(TIERS.map((tier) => {
-    const byScore = (left, right) => tier.score(right) - tier.score(left);
+    const scores = new Map(candidates.map((candidate) => {
+      const jitter = seed === undefined ? 0 : tier.jitter * signedNoise(seed, tier.id, candidateKey(candidate));
+      return [candidate, tier.score(candidate) + jitter];
+    }));
+    const byScore = (left, right) => scores.get(right) - scores.get(left);
     const accepted = candidates.filter((candidate) => tier.accepts(candidate, pool)).sort(byScore);
     const acceptedSet = new Set(accepted);
     const rest = candidates.filter((candidate) => !acceptedSet.has(candidate)).sort(byScore);
