@@ -53,7 +53,7 @@ async function main() {
     } else if (state.result) {
       renderResult(resultsContainer, state.result, catalog, { onInclude: includeFlavor, onExclude: excludeFlavor });
     }
-    document.getElementById('empty-hint').hidden = state.result !== null || state.status !== null;
+    document.getElementById('empty-state').hidden = state.result !== null || state.status !== null;
   };
 
   const loadPage = async (request, page, repeatCount) => {

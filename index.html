@@ -7,7 +7,29 @@ layout: default
 </header>
 
 <main class="app-main">
-  <p class="empty-hint" id="empty-hint" data-i18n="empty_hint"></p>
+  <div class="empty-state" id="empty-state">
+    <svg class="empty-illustration" viewBox="0 0 120 164" aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="empty-flask-inside">
+          <path transform="translate(12 72) scale(4)" d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2z"/>
+        </clipPath>
+      </defs>
+      <g class="smoke">
+        <path class="smoke-wisp smoke-wisp-1" pathLength="100" d="M60 76C52 64 68 54 60 42S52 22 60 10"/>
+        <path class="smoke-wisp smoke-wisp-2" pathLength="100" d="M57 76C48 66 58 56 50 46S44 30 50 18"/>
+        <path class="smoke-wisp smoke-wisp-3" pathLength="100" d="M63 76C72 66 62 56 70 46S76 30 70 20"/>
+      </g>
+      <rect class="flask-liquid" x="0" y="132" width="120" height="28" clip-path="url(#empty-flask-inside)"/>
+      <circle class="flask-bubble" cx="53.6" cy="146.4" r="3.2"/>
+      <circle class="flask-bubble" cx="66.4" cy="141.6" r="2.2"/>
+      <g class="flask-outline" transform="translate(12 72) scale(4)">
+        <path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/>
+        <path d="M6.453 15h11.094"/>
+        <path d="M8.5 2h7"/>
+      </g>
+    </svg>
+    <p class="empty-hint" data-i18n="empty_hint"></p>
+  </div>
   <section class="results" id="results" aria-live="polite"></section>
 </main>
 
