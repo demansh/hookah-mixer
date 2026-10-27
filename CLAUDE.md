@@ -40,7 +40,10 @@ GitHub Pages + Jekyll, Vanilla JS ES modules без сборщика, mobile fir
 (`--window-size=500,…` — уже 500px не бывает; `--force-prefers-reduced-motion`, чтобы не ловить анимацию)
 и сценарии кликов через временную копию `index.html` с подключённым тестовым скриптом, результат — `--dump-dom`.
 Язык браузера — `--accept-lang=ru-RU` (флаг `--lang` в headless не работает).
+Service worker через `--dump-dom` не проверить: Chrome с `--remote-debugging-port` и скрипт на Python
+(`uv run --with websocket-client`), офлайн — `Network.emulateNetworkConditions`. Локальная сборка подставляет
+в `sw.js` sha текущего коммита (`site.github.build_revision`).
 
 ## Что дальше
-- TODO из `README.md`: PWA / service worker, отладка, текстовый запрос.
+- TODO из `README.md`: отладка, текстовый запрос.
 - Отзывы пользователя о новом интерфейсе.

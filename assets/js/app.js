@@ -66,6 +66,7 @@ const actions = {
 };
 
 async function main() {
+  registerServiceWorker();
   initLang();
   renderLangToggle();
   langToggleElement.addEventListener('click', () => {
@@ -236,6 +237,14 @@ function toggleFavorite() {
   } else {
     renderMixCard(shownMix);
   }
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return;
+  }
+  navigator.serviceWorker.register(`${baseUrl}/sw.js`, { scope: `${baseUrl}/` })
+    .catch((error) => console.warn('Service worker registration failed', error));
 }
 
 function capitalize(text) {
