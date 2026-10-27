@@ -278,7 +278,8 @@ async function loadUnseenMix(startPage) {
     }
     loaded = await loadMix(loaded.page + 1);
   }
-  return loaded;
+  const isOnlyRepeats = Boolean(loaded.mix) && seenMixKeys.has(mixKey(loaded.mix));
+  return isOnlyRepeats ? { ...loaded, wrapped: true } : loaded;
 }
 
 function mixKey(mix) {

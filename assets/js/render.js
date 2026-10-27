@@ -32,17 +32,7 @@ function createStartContent({ concepts, catalog, startTab, shelf }, actions) {
     ];
   }
   if (startTab === 'shelf') {
-    return [
-      createElement('p', 'screen-hint', t('shelfHint')),
-      ...createFlavorGroups(catalog, {
-        hiddenIds: new Set(),
-        createChip: (id, name) => {
-          const chip = createButton('flavor-chip shelf-chip', () => actions.onToggleShelf(id), name);
-          chip.setAttribute('aria-pressed', String(shelf.has(id)));
-          return chip;
-        },
-      }),
-    ];
+    return [createElement('p', 'screen-hint', t('shelfHint')), createShelfChips(catalog, shelf, actions)];
   }
   return [createElement('p', 'screen-hint', t('startHint')), createConceptGrid(concepts, actions)];
 }
@@ -51,6 +41,20 @@ function createConceptGrid(concepts, { onPickConcept }) {
   const grid = createElement('div', 'concept-grid');
   concepts.forEach((concept) => grid.append(createConceptButton(concept, () => onPickConcept(concept.id))));
   return grid;
+}
+
+function createShelfChips(catalog, shelf, { onToggleShelf }) {
+  const chips = createElement('div', 'flavor-chips');
+  catalog.flavors
+    .filter(isIngredient)
+    .map((flavor) => ({ id: flavor.id, name: flavorLabel(flavor, getLang()) }))
+    .sort((left, right) => left.name.localeCompare(right.name, getLang()))
+    .forEach(({ id, name }) => {
+      const chip = createButton('flavor-chip shelf-chip', () => onToggleShelf(id), name);
+      chip.setAttribute('aria-pressed', String(shelf.has(id)));
+      chips.append(chip);
+    });
+  return chips;
 }
 
 function createFlavorGroups(catalog, { hiddenIds, createChip }) {
