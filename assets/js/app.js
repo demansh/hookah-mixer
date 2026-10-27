@@ -1,302 +1,268 @@
-import { initI18n, t, localize, getOtherLang, setLang, onLangChange } from './i18n.js';
-import { loadCatalog } from './data.js';
-import { initDebug, mountDebugPanel, debugLog } from './debug.js';
-import { initForm, normalizeQuery } from './ui/form.js';
-import { removeSpans } from './engine/text.js';
-import { renderResult, renderStatus } from './ui/results.js';
-import { recommend } from './engine/recommend.js';
-import { createSessionSeed } from './engine/random.js';
-import { parseQuery } from './engine/profile.js';
-import { resolveMood, createMoodIndicator } from './ui/mood.js';
-import { initBottomBar } from './ui/bottom-bar.js';
-import { noteForMix } from './engine/recommend.js';
+import { loadCatalog, recommendSelection, createSessionSeed } from '../core/js/index.js';
 import {
-  listFavorites, favoritesCount, isFavorite, toggleFavorite, removeFavorite, restoreFavorite, onFavoritesChange,
-} from './favorites.js';
-import { readRoute, navigate, canGoBackInApp } from './router.js';
-import { mixToParams, parseMixParams, mixFlavorQuery } from './mix-link.js';
-import { renderMixView, renderFavoritesView } from './ui/views.js';
-import { shareMix } from './ui/share.js';
-import { showToast } from './ui/toast.js';
+  createStartState, readState, writeState, toSelection, isMixScreen, startMix, canPin, pinFlavor, unpinFlavor,
+  removeFromMix, includeFlavor, nextPage, withPage, setTemperature, hasLock, withoutLock, startFlavorMix, setStartTab,
+  isFlavorSource,
+} from './state.js';
+import { renderStart, renderMix, renderThermometer, renderBottomActions } from './render.js';
+import { TEMPERATURES } from './options.js';
+import { resolveMood, showMaster } from './master.js';
+import { initLang, toggleLang, t } from './i18n.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
-const buildId = document.documentElement.dataset.build || 'local';
-const LIVE_MOOD_DELAY_MS = 120;
-const sessionSeed = resolveSessionSeed();
+const tierOrder = TEMPERATURES.map((temperature) => temperature.tier);
+const MAX_UNSEEN_ATTEMPTS = 12;
+const MAX_LOCK_PAGES = 5;
+
+const screenElement = document.getElementById('screen');
+const thermometerElement = document.getElementById('thermometer');
+const bottomActionsElement = document.getElementById('bottom-actions');
+const masterElement = document.getElementById('master');
+const langToggleElement = document.getElementById('lang-toggle');
+const statusElement = document.getElementById('status');
+
+let catalog = null;
+let sessionSeed = createSessionSeed();
+let shuffledConcepts = [];
+let state = createStartState();
+let renderRevision = 0;
+let currentMix = null;
+let heldMix = null;
+const seenMixKeys = new Set();
+
+const actions = {
+  onPickConcept: (conceptId) => update(startMix(state, conceptId), { resetSeen: true }),
+  onSurprise: () => update(startMix(state, null), { resetSeen: true }),
+  onPickFlavor: (flavorId) => update(startFlavorMix(state, flavorId), { resetSeen: true }),
+  onSetStartTab: (startTab) => update(setStartTab(state, startTab), { replace: true }),
+  onPin: (flavorId) => holdMix(pinFlavor(state, flavorId)),
+  onUnpin: (flavorId) => holdMix(unpinFlavor(state, flavorId)),
+  onExclude: (flavorId) => removeFlavor(flavorId),
+  onInclude: (flavorId) => update(includeFlavor(state, flavorId), { resetSeen: true }),
+  onAnother: () => showAnotherMix(),
+  onReset: () => resetProgress(),
+  onSetTemperature: (tier) => update(setTemperature(state, tier), { replace: true, keepScroll: true }),
+};
 
 async function main() {
-  initDebug();
-  registerServiceWorker();
-  initI18n();
-  initBottomBar(document.getElementById('mix-form'));
-  mountDebugPanel(buildId);
-  debugLog(`Seed: ${sessionSeed} (add ?seed=${sessionSeed} to reproduce)`);
-
-  const langToggle = document.getElementById('lang-toggle');
-  const updateLangToggle = () => {
-    langToggle.textContent = t('lang_switch');
-  };
-  langToggle.addEventListener('click', () => setLang(getOtherLang()));
-  updateLangToggle();
-
-  const resultsContainer = document.getElementById('results');
-
-  let catalog;
-  try {
-    catalog = await loadCatalog(baseUrl);
-    const flavorCount = catalog.flavors.filter((flavor) => flavor.kind === 'flavor').length;
-    debugLog(`Catalog: ${flavorCount} flavors, ${catalog.graph.pairs.length} pairs, ${catalog.concepts.length} concepts`);
-  } catch (error) {
-    debugLog(error.message, 'error');
-    renderStatus(resultsContainer, 'error_data');
-    return;
-  }
-
-  const state = { request: null, page: 0, result: null, status: null, repeatCount: 0 };
-  const mood = createMoodIndicator(document.getElementById('mood'));
-  mood.set('wizard');
-
-  const render = () => {
-    if (state.status) {
-      renderStatus(resultsContainer, state.status);
-    } else if (state.result) {
-      renderResult(resultsContainer, state.result, catalog, {
-        flavorActions: { onInclude: includeFlavor, onExclude: excludeFlavor },
-        mixActions: {
-          onToggleFavorite: (mix) => toggleFavorite(mix, currentQuery()),
-          onShare: (mix) => shareMix(mix, currentQuery(), catalog, baseUrl),
-          onOpen: (mix) => openMix(mix, currentQuery()),
-        },
-      });
-    }
-    document.getElementById('empty-state').hidden = state.result !== null || state.status !== null;
-  };
-
-  const loadPage = async (request, page, repeatCount) => {
-    const startedAt = performance.now();
-    try {
-      const seededRequest = { ...request, seed: sessionSeed };
-      let result = await recommend(seededRequest, catalog, page);
-      let loadedPage = page;
-      const wrapped = page > 0 && result.mixes.length === 0;
-      if (wrapped) {
-        loadedPage = 0;
-        result = await recommend(seededRequest, catalog, loadedPage);
-      }
-      mood.set(resolveMood({ query: request.query, profile: result.profile, repeatCount, wrapped }));
-      debugLog(`Request "${request.query}" page ${loadedPage} → ${result.mixes.length} mixes in ${Math.round(performance.now() - startedAt)} ms`);
-      debugLog(`Profile: ${describeProfile(result.profile)}`);
-      Object.assign(state, { request, page: loadedPage, result, status: null, repeatCount });
-    } catch (error) {
-      debugLog(error.stack || error.message, 'error');
-      mood.set('dizzy');
-      Object.assign(state, { request, page, result: null, status: 'error_engine', repeatCount: 0 });
-    }
-    render();
-    updateSubmitMode();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const formElement = document.getElementById('mix-form');
-  const queryInput = document.getElementById('query-input');
-
-  function excludeFlavor(flavorId) {
-    if (state.result?.profile.excluded.has(flavorId)) {
-      return;
-    }
-    const addition = `${t('without')} ${localize(catalog.flavorsById.get(flavorId).label)}`;
-    const pinnedSpans = parseQuery(queryInput.value, catalog).matched
-      .filter((match) => match.type === 'flavor' && match.id === flavorId && !match.negated)
-      .flatMap((match) => match.spans);
-    const currentQuery = pinnedSpans.length > 0 ? removeSpans(queryInput.value, pinnedSpans) : queryInput.value.trim();
-    queryInput.value = currentQuery ? `${currentQuery}, ${addition}` : addition;
-    queryInput.scrollLeft = queryInput.scrollWidth;
-    debugLog(`Exclude ${flavorId} → "${queryInput.value}"`);
-    formElement.requestSubmit();
-  }
-
-  function includeFlavor(flavorId) {
-    if (state.result?.profile.required.includes(flavorId)) {
-      return;
-    }
-    const label = localize(catalog.flavorsById.get(flavorId).label);
-    const currentQuery = queryInput.value.trim();
-    const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
-    queryInput.value = currentQuery
-      ? `${capitalizedLabel}, ${currentQuery.charAt(0).toLowerCase()}${currentQuery.slice(1)}`
-      : capitalizedLabel;
-    queryInput.scrollLeft = 0;
-    debugLog(`Include ${flavorId} → "${queryInput.value}"`);
-    formElement.requestSubmit();
-  }
-
-  const form = initForm({
-    form: formElement,
-    concepts: catalog.concepts,
-    flavors: catalog.flavors,
-    onSubmit: async (request) => {
-      const isRepeat = state.result !== null && state.request?.query.toLowerCase() === request.query.toLowerCase();
-      if (!isRepeat) {
-        renderStatus(resultsContainer, 'loading');
-      }
-      await loadPage(request, isRepeat ? state.page + 1 : 0, isRepeat ? state.repeatCount + 1 : 0);
-    },
-  });
-
-  function updateSubmitMode() {
-    const isSameQuery = state.result !== null && state.request !== null
-      && normalizeQuery(queryInput.value).toLowerCase() === state.request.query.toLowerCase();
-    form.setSubmitMode(isSameQuery ? 'regenerate' : 'new');
-  }
-
-  let liveMoodTimer = null;
-  queryInput.addEventListener('input', () => {
-    updateSubmitMode();
-    clearTimeout(liveMoodTimer);
-    liveMoodTimer = setTimeout(() => {
-      const query = queryInput.value;
-      mood.set(resolveMood({ query, profile: parseQuery(query, catalog) }));
-    }, LIVE_MOOD_DELAY_MS);
-  });
-
-  const mainElements = [document.querySelector('.app-main'), formElement];
-  const mixView = document.getElementById('mix-view');
-  const favoritesView = document.getElementById('favorites-view');
-  const favoritesButton = document.getElementById('favorites-button');
-  const favoritesCountBadge = document.getElementById('favorites-count');
-
-  function currentQuery() {
-    return state.request?.query ?? '';
-  }
-
-  function openMix(mix, query) {
-    navigate(mixToParams(mix, query));
-    renderRoute();
-  }
-
-  function goBack() {
-    if (canGoBackInApp()) {
-      history.back();
-      return;
-    }
-    navigate(new URLSearchParams(), { replace: true });
-    renderRoute();
-  }
-
-  function withNote(mix) {
-    return { ...mix, note: noteForMix(mix, catalog) };
-  }
-
-  function renderRoute() {
-    const route = readRoute();
-    mainElements.forEach((element) => {
-      element.hidden = route.view !== 'main';
-    });
-    mixView.hidden = route.view !== 'mix';
-    favoritesView.hidden = route.view !== 'favorites';
-    window.scrollTo(0, 0);
-    if (route.view === 'mix') {
-      const parsed = parseMixParams(route.params, catalog);
-      const mix = parsed ? withNote(parsed.mix) : null;
-      renderMixView(mixView, {
-        catalog,
-        mix,
-        query: parsed?.query ?? '',
-        isFavorite: mix ? isFavorite(mix.components) : false,
-        onToggleFavorite: () => toggleFavorite(mix, parsed.query),
-        onShare: () => shareMix(mix, parsed.query, catalog, baseUrl),
-        onSimilar: () => {
-          queryInput.value = mixFlavorQuery(mix, catalog);
-          navigate(new URLSearchParams());
-          renderRoute();
-          formElement.requestSubmit();
-        },
-        onBack: goBack,
-      });
-    } else if (route.view === 'favorites') {
-      renderFavoritesView(favoritesView, {
-        catalog,
-        items: listFavorites().map((item) => ({ mix: withNote(item), query: item.query })),
-        onOpen: (mix, query) => openMix(mix, query),
-        onShare: (mix, query) => shareMix(mix, query, catalog, baseUrl),
-        onDelete: (mix) => {
-          const removed = removeFavorite(mix.components);
-          if (removed) {
-            showToast(t('deleted_toast'), { actionLabel: t('undo'), onAction: () => restoreFavorite(removed) });
-          }
-        },
-        onBack: goBack,
-      });
-    } else {
+  initLang();
+  renderLangToggle();
+  langToggleElement.addEventListener('click', () => {
+    toggleLang();
+    renderLangToggle();
+    if (catalog) {
       render();
     }
-  }
-
-  function updateFavoritesBadge() {
-    const count = favoritesCount();
-    favoritesCountBadge.textContent = count > 0 ? String(count) : '';
-    favoritesCountBadge.hidden = count === 0;
-    favoritesButton.setAttribute('aria-label', `${t('favorites_open')}${count > 0 ? ` (${count})` : ''}`);
-    favoritesButton.title = t('favorites_open');
-  }
-
-  favoritesButton.addEventListener('click', () => {
-    if (readRoute().view === 'favorites') {
-      return;
-    }
-    navigate(new URLSearchParams({ view: 'favorites' }));
-    renderRoute();
   });
-
-  onFavoritesChange(() => {
-    updateFavoritesBadge();
-    if (readRoute().view === 'favorites') {
-      renderRoute();
-    }
-  });
-
-  window.addEventListener('popstate', renderRoute);
-  updateFavoritesBadge();
-  renderRoute();
-
-  onLangChange(() => {
-    mood.refresh();
-    updateLangToggle();
-    updateFavoritesBadge();
-    form.refresh();
-    renderRoute();
-  });
-}
-
-function resolveSessionSeed() {
-  const seedParameter = new URLSearchParams(location.search).get('seed');
-  return seedParameter !== null && /^\d+$/.test(seedParameter) ? Number(seedParameter) : createSessionSeed();
-}
-
-function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) {
+  try {
+    catalog = await loadCatalog(`${baseUrl}/assets/core/data`);
+  } catch (error) {
+    console.error(error);
+    showStatus(t('loadError'));
     return;
   }
-  navigator.serviceWorker.register(`${baseUrl}/sw.js`, { scope: `${baseUrl}/` })
-    .then((registration) => debugLog(`Service worker: ${registration.active ? 'active' : 'installing'}`))
-    .catch((error) => debugLog(`Service worker failed: ${error.message}`, 'error'));
+  shuffledConcepts = shuffle(catalog.concepts);
+  state = readState(window.location.search, catalog);
+  window.addEventListener('popstate', () => {
+    state = readState(window.location.search, catalog);
+    heldMix = null;
+    seenMixKeys.clear();
+    render();
+  });
+  render();
 }
 
-function describeProfile(profile) {
-  const formatMap = (map) => [...map.entries()]
-    .sort((left, right) => right[1] - left[1])
-    .map(([id, weight]) => `${id}:${weight}`)
-    .join(' ');
-  return [
-    `matched=${profile.matched.map((match) => `${match.negated ? '-' : ''}${match.type}:${match.id}`).join(' ')}`,
-    `weights=${formatMap(profile.weights)}`,
-    `properties=${formatMap(profile.properties)}`,
-    `required=${profile.required.join(' ')}`,
-    `excluded=${[...profile.excluded].join(' ')}`,
-    `random=${profile.isRandom ? 'yes' : 'no'}`,
-  ].join(' | ');
+function resetProgress() {
+  sessionSeed = createSessionSeed();
+  shuffledConcepts = shuffle(catalog.concepts);
+  update(createStartState(state.temperature), { resetSeen: true });
 }
 
-main().catch((error) => {
-  debugLog(error.stack || error.message, 'error');
-});
+function removeFlavor(flavorId) {
+  const shownMix = heldMix ?? currentMix;
+  const mixFlavorIds = shownMix ? shownMix.components.map((component) => component.flavorId) : [];
+  update(removeFromMix(state, flavorId, mixFlavorIds), { resetSeen: true });
+}
+
+function holdMix(nextState) {
+  if (nextState === state) {
+    return;
+  }
+  heldMix = heldMix ?? currentMix;
+  state = nextState;
+  saveUrl(false);
+  render();
+}
+
+function showAnotherMix() {
+  if (heldMix) {
+    heldMix = null;
+    render({ preferUnseen: true });
+    return;
+  }
+  update(nextPage(state), { preferUnseen: true });
+}
+
+function renderLangToggle() {
+  langToggleElement.textContent = t('langSwitch');
+  langToggleElement.setAttribute('aria-label', t('langSwitchLabel'));
+  langToggleElement.title = t('langSwitchLabel');
+}
+
+function update(nextState, { replace = false, keepScroll = false, resetSeen = false, preferUnseen = false } = {}) {
+  if (nextState === state) {
+    return;
+  }
+  heldMix = null;
+  if (resetSeen) {
+    seenMixKeys.clear();
+  }
+  state = nextState;
+  saveUrl(replace);
+  render({ preferUnseen });
+  if (!keepScroll) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function saveUrl(replace) {
+  const url = `${window.location.pathname}${writeState(state)}`;
+  if (replace) {
+    window.history.replaceState(null, '', url);
+  } else {
+    window.history.pushState(null, '', url);
+  }
+}
+
+async function render({ preferUnseen = false } = {}) {
+  const revision = ++renderRevision;
+  renderThermometer(thermometerElement, state.temperature, actions);
+  renderBottomActions(bottomActionsElement, isMixScreen(state), actions);
+  if (!isMixScreen(state)) {
+    currentMix = null;
+    showStatus(null);
+    showMaster(masterElement, resolveMood({ temperature: state.temperature }));
+    renderStart(screenElement, { concepts: shuffledConcepts, catalog, startTab: state.startTab }, actions);
+    return;
+  }
+  if (heldMix) {
+    showMaster(masterElement, resolveMood({ temperature: state.temperature }));
+    renderMixCard(heldMix);
+    return;
+  }
+  try {
+    let { mix, page, wrapped } = await loadForState(preferUnseen);
+    const isLockFailed = !mix && hasLock(state);
+    if (isLockFailed) {
+      ({ mix, page, wrapped } = await loadMix(state.page, withoutLock(state)));
+    }
+    if (revision !== renderRevision) {
+      return;
+    }
+    if (isLockFailed) {
+      state = withoutLock(state);
+      saveUrl(true);
+    }
+    if (wrapped) {
+      seenMixKeys.clear();
+    }
+    if (mix) {
+      seenMixKeys.add(mixKey(mix));
+    }
+    if (page !== state.page) {
+      state = withPage(state, page);
+      saveUrl(true);
+    }
+    currentMix = mix;
+    showStatus(null);
+    const mood = resolveMood({ hasMix: Boolean(mix), wrapped, temperature: state.temperature });
+    showMaster(masterElement, mood);
+    renderMixCard(mix);
+  } catch (error) {
+    console.error(error);
+    showStatus(t('engineError'));
+  }
+}
+
+function renderMixCard(mix) {
+  renderMix(screenElement, {
+    state,
+    catalog,
+    mix,
+    concept: catalog.concepts.find((concept) => concept.id === state.conceptId) ?? null,
+    isFallbackTier: Boolean(mix) && mix.tier !== state.temperature,
+    showTitle: !isFlavorSource(state),
+    canPin: canPin(state),
+  }, actions);
+}
+
+async function loadMix(page, fromState = state) {
+  const request = { ...toSelection(fromState), seed: sessionSeed };
+  const result = await recommendSelection(request, catalog, page);
+  if (page > 0 && result.mixes.length === 0) {
+    const firstPage = await recommendSelection(request, catalog, 0);
+    return { mix: pickMix(firstPage.mixes, fromState.temperature), page: 0, wrapped: true };
+  }
+  return { mix: pickMix(result.mixes, fromState.temperature), page, wrapped: false };
+}
+
+function loadForState(preferUnseen) {
+  if (hasLock(state)) {
+    return loadLockedMix(state);
+  }
+  return preferUnseen ? loadUnseenMix(state.page) : loadMix(state.page);
+}
+
+async function loadLockedMix(fromState) {
+  const request = { ...toSelection(fromState), seed: sessionSeed };
+  const maxSize = fromState.locked.length + 1;
+  let fallbackMix = null;
+  for (let page = 0; page < MAX_LOCK_PAGES; page += 1) {
+    const { mixes } = await recommendSelection(request, catalog, page);
+    const mix = pickMix(mixes, fromState.temperature);
+    if (!mix) {
+      break;
+    }
+    fallbackMix = fallbackMix ?? mix;
+    if (mix.components.length <= maxSize) {
+      return { mix, page: fromState.page, wrapped: false };
+    }
+  }
+  return { mix: fallbackMix, page: fromState.page, wrapped: false };
+}
+
+async function loadUnseenMix(startPage) {
+  let loaded = await loadMix(startPage);
+  for (let attempt = 0; attempt < MAX_UNSEEN_ATTEMPTS; attempt += 1) {
+    if (!loaded.mix || loaded.wrapped || !seenMixKeys.has(mixKey(loaded.mix))) {
+      break;
+    }
+    loaded = await loadMix(loaded.page + 1);
+  }
+  return loaded;
+}
+
+function mixKey(mix) {
+  return mix.components.map((component) => component.flavorId).sort().join('+');
+}
+
+function pickMix(mixes, tier) {
+  const distance = (mix) => Math.abs(tierOrder.indexOf(mix.tier) - tierOrder.indexOf(tier));
+  return [...mixes].sort((left, right) => distance(left) - distance(right))[0] ?? null;
+}
+
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function showStatus(message) {
+  statusElement.hidden = message === null;
+  statusElement.textContent = message ?? '';
+}
+
+main();

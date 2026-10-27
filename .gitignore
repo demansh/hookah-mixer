@@ -2,9 +2,6 @@
 _site/
 .jekyll-cache/
 .sass-cache/
-.venv/
-__pycache__/
-models/
 data-work/
 Gemfile.lock
 vendor/

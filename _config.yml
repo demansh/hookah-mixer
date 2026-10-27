@@ -1,5 +1,5 @@
 title: Hookah Mixer
-description: Генератор сочетаний ароматов для кальяна по описанию настроения
+description: Hookah Mixer — миксы для кальяна по настроению или вкусу · hookah mixes by mood or flavor
 url: https://demansh.github.io
 baseurl: /hookah-mixer
 lang: ru
@@ -9,14 +9,7 @@ exclude:
   - CLAUDE.md
   - Gemfile
   - Gemfile.lock
-  - pyproject.toml
-  - uv.lock
-  - .python-version
-  - .venv
   - vendor
   - tools
-  - data-src
-  - eval
   - notes
-  - models
   - data-work

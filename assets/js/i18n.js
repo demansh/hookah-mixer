@@ -1,49 +1,128 @@
 const STORAGE_KEY = 'hm.lang';
 const SUPPORTED_LANGS = ['ru', 'en'];
-const FALLBACK_LANG = 'ru';
+const FALLBACK_LANG = 'en';
 
-let dictionaries = {};
+const DICTIONARIES = {
+  ru: {
+    langSwitch: 'EN',
+    langSwitchLabel: 'Switch to English',
+    startHint: 'Выберите настроение — или доверьтесь случаю кнопкой внизу.',
+    tabMood: 'Настроение',
+    tabTaste: 'Вкус',
+    tasteHint: 'Выберите аромат — мастер соберёт микс с ним.',
+    categoryOrchard: 'Садовые фрукты',
+    categoryTropical: 'Тропические фрукты',
+    categoryCitrus: 'Цитрусы',
+    categoryBerry: 'Ягоды',
+    categoryMelon: 'Бахчевые',
+    categoryVegetable: 'Овощи',
+    categoryHerbal: 'Травы',
+    categoryFloral: 'Цветы',
+    categorySpice: 'Пряности',
+    categoryTea: 'Чай',
+    categoryDrink: 'Напитки',
+    categoryAlcohol: 'Алкоголь',
+    categoryDessert: 'Десерты',
+    categoryBakery: 'Выпечка',
+    categoryCandy: 'Конфеты',
+    categoryNut: 'Орехи',
+    categoryTobacco: 'Табак',
+    categoryOther: 'Другое',
+    randomMix: '🎲 Случайный микс',
+    mastersChoice: 'На вкус мастера',
+    fallbackTier: 'На этой температуре вариантов нет — показан ближайший.',
+    nothingFound: 'Ничего не нашлось. Верните убранный аромат или открепите один.',
+    startOver: 'Начать заново',
+    anotherMix: 'Другой микс',
+    thermometer: 'Температура мастера',
+    pin: 'Оставить во всех миксах: {flavor}',
+    unpin: 'Открепить: {flavor}',
+    remove: 'Убрать: {flavor}',
+    removed: 'Убрано:',
+    loadError: 'Не удалось загрузить базу ароматов. Обновите страницу.',
+    engineError: 'Не получилось подобрать микс. Вернитесь назад и попробуйте другое настроение.',
+    moodClassic: 'Мастер спокоен',
+    moodBalanced: 'Мастер экспериментирует',
+    moodBold: 'Мастер бредит',
+    moodPuzzled: 'Мастер недоумевает: так не сочетается',
+    moodDizzy: 'Идеи кончились, мастер начинает сначала',
+    temperatureClassic: '36,6°',
+    temperatureBalanced: '37,2°',
+    temperatureBold: '38°',
+  },
+  en: {
+    langSwitch: 'RU',
+    langSwitchLabel: 'Переключить на русский',
+    startHint: 'Pick a mood — or trust your luck with the button below.',
+    tabMood: 'Mood',
+    tabTaste: 'Flavor',
+    tasteHint: 'Pick a flavor — the master will build a mix around it.',
+    categoryOrchard: 'Orchard fruits',
+    categoryTropical: 'Tropical fruits',
+    categoryCitrus: 'Citrus',
+    categoryBerry: 'Berries',
+    categoryMelon: 'Melons',
+    categoryVegetable: 'Vegetables',
+    categoryHerbal: 'Herbs',
+    categoryFloral: 'Flowers',
+    categorySpice: 'Spices',
+    categoryTea: 'Tea',
+    categoryDrink: 'Drinks',
+    categoryAlcohol: 'Alcohol',
+    categoryDessert: 'Desserts',
+    categoryBakery: 'Bakery',
+    categoryCandy: 'Candy',
+    categoryNut: 'Nuts',
+    categoryTobacco: 'Tobacco',
+    categoryOther: 'Other',
+    randomMix: '🎲 Random mix',
+    mastersChoice: "Master's choice",
+    fallbackTier: 'Nothing at this temperature — showing the closest one.',
+    nothingFound: 'Nothing found. Bring back a removed flavor or unpin one.',
+    startOver: 'Start over',
+    anotherMix: 'Another mix',
+    thermometer: "Master's temperature",
+    pin: 'Keep in every mix: {flavor}',
+    unpin: 'Unpin: {flavor}',
+    remove: 'Remove: {flavor}',
+    removed: 'Removed:',
+    loadError: 'Could not load the flavor base. Please reload the page.',
+    engineError: 'Could not pick a mix. Go back and try another mood.',
+    moodClassic: 'The master is calm',
+    moodBalanced: 'The master is experimenting',
+    moodBold: 'The master is delirious',
+    moodPuzzled: "The master is puzzled: these don't go together",
+    moodDizzy: 'Out of ideas, the master starts over',
+    temperatureClassic: '36.6°',
+    temperatureBalanced: '37.2°',
+    temperatureBold: '38°',
+  },
+};
+
 let currentLang = FALLBACK_LANG;
-const changeListeners = new Set();
 
-export function initI18n() {
-  const source = document.getElementById('i18n-data');
-  dictionaries = JSON.parse(source?.textContent || '{}');
+export function initLang() {
   currentLang = resolveInitialLang();
-  applyTranslations();
-}
-
-export function t(key) {
-  return dictionaries[currentLang]?.[key] ?? dictionaries[FALLBACK_LANG]?.[key] ?? key;
+  document.documentElement.lang = currentLang;
 }
 
 export function getLang() {
   return currentLang;
 }
 
-export function getOtherLang() {
-  return SUPPORTED_LANGS.find((lang) => lang !== currentLang);
-}
-
-export function setLang(lang) {
-  if (!SUPPORTED_LANGS.includes(lang) || lang === currentLang) {
-    return;
+export function toggleLang() {
+  currentLang = SUPPORTED_LANGS.find((lang) => lang !== currentLang);
+  document.documentElement.lang = currentLang;
+  try {
+    localStorage.setItem(STORAGE_KEY, currentLang);
+  } catch (error) {
+    console.warn('Language preference was not saved', error);
   }
-  currentLang = lang;
-  writeStoredLang(lang);
-  applyTranslations();
-  changeListeners.forEach((listener) => listener(lang));
 }
 
-export function onLangChange(listener) {
-  changeListeners.add(listener);
-}
-
-export function localize(localizedValue) {
-  if (typeof localizedValue === 'string') {
-    return localizedValue;
-  }
-  return localizedValue?.[currentLang] || localizedValue?.[FALLBACK_LANG] || localizedValue?.en || '';
+export function t(key, params = {}) {
+  const template = DICTIONARIES[currentLang][key] ?? DICTIONARIES[FALLBACK_LANG][key] ?? key;
+  return template.replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match);
 }
 
 function resolveInitialLang() {
@@ -51,22 +130,7 @@ function resolveInitialLang() {
   if (SUPPORTED_LANGS.includes(storedLang)) {
     return storedLang;
   }
-  const browserLang = (navigator.language || '').slice(0, 2).toLowerCase();
-  return SUPPORTED_LANGS.includes(browserLang) ? browserLang : FALLBACK_LANG;
-}
-
-function applyTranslations() {
-  document.documentElement.lang = currentLang;
-  document.title = t('app_title');
-  document.querySelectorAll('[data-i18n]').forEach((element) => {
-    element.textContent = t(element.dataset.i18n);
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
-    element.placeholder = t(element.dataset.i18nPlaceholder);
-  });
-  document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
-    element.setAttribute('aria-label', t(element.dataset.i18nAriaLabel));
-  });
+  return (navigator.language || '').toLowerCase().startsWith('ru') ? 'ru' : FALLBACK_LANG;
 }
 
 function readStoredLang() {
@@ -74,13 +138,5 @@ function readStoredLang() {
     return localStorage.getItem(STORAGE_KEY);
   } catch {
     return null;
-  }
-}
-
-function writeStoredLang(lang) {
-  try {
-    localStorage.setItem(STORAGE_KEY, lang);
-  } catch {
-    return;
   }
 }
