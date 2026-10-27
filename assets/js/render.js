@@ -253,7 +253,7 @@ export function renderBottomActions(container, { isMixScreen, isSharedScreen, st
   }
   container.replaceChildren(
     createEmojiButton('reset-button', onReset, '🏠', t('goHome')),
-    createIconButton('another-button', onAnother, 'refresh', t('anotherMix')),
+    createLabeledIconButton('another-button', onAnother, 'refresh', t('anotherMix')),
   );
 }
 
@@ -316,6 +316,12 @@ function createEmojiButton(className, onClick, emoji, accessibleLabel) {
   const button = createButton(`icon-button emoji-button ${className}`, onClick, emoji);
   button.setAttribute('aria-label', accessibleLabel);
   button.title = accessibleLabel;
+  return button;
+}
+
+function createLabeledIconButton(className, onClick, iconName, text) {
+  const button = createButton(`icon-button ${className}`, onClick);
+  button.append(createIcon(iconName), createElement('span', 'button-label', text));
   return button;
 }
 

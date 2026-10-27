@@ -534,9 +534,12 @@ button:focus-visible {
 
 .another-button {
   flex: 1;
+  gap: var(--space-2);
   border: 0;
   background: var(--color-accent);
   color: var(--color-accent-text);
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .thermometer {
