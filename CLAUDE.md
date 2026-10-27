@@ -42,5 +42,5 @@ GitHub Pages + Jekyll, Vanilla JS ES modules без сборщика, mobile fir
 Язык браузера — `--accept-lang=ru-RU` (флаг `--lang` в headless не работает).
 
 ## Что дальше
-- TODO из `README.md`: ссылки «поделиться», PWA / service worker, отладка, текстовый запрос.
+- TODO из `README.md`: PWA / service worker, отладка, текстовый запрос.
 - Отзывы пользователя о новом интерфейсе.

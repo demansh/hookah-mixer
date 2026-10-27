@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'hm.saved-mixes';
 const SCHEMA_VERSION = 1;
-const SOURCE_TYPES = new Set(['concept', 'flavor', 'shelf', 'random']);
+const SOURCE_TYPES = new Set(['concept', 'flavor', 'shelf', 'random', 'shared']);
 const TIERS = new Set(['classic', 'balanced', 'bold']);
 
 export function mixKey(mix) {

@@ -71,38 +71,54 @@ function favoriteTitle(source, catalog) {
     const concept = catalog.concepts.find((item) => item.id === source.conceptId);
     return concept ? conceptLabel(concept) : null;
   }
-  const sourceKeys = { flavor: 'byFlavor', shelf: 'fromShelf', random: 'mastersChoice' };
+  if (source.type === 'shared') {
+    return source.query ? source.query.charAt(0).toUpperCase() + source.query.slice(1) : t('sharedMix');
+  }
+  const sourceKeys = { flavor: 'byFlavor', shelf: 'fromShelf', random: 'randomMixTitle' };
   return t(sourceKeys[source.type]);
 }
 
-function createFavoritesList(catalog, favorites, { onRemoveFavorite }) {
+function createFavoritesList(catalog, favorites, { onRemoveFavorite, onShareMix }) {
   if (favorites.length === 0) {
     return [createElement('p', 'screen-hint', t('favoritesEmpty'))];
   }
-  return favorites.map((item) => {
-    const card = createElement('article', `mix-card mix-card--${item.tier} saved-card`);
-    const header = createElement('div', 'mix-header');
-    const title = favoriteTitle(item.source, catalog);
-    header.append(
-      title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'),
-      createIconButton('saved-remove-button', () => onRemoveFavorite(item.key), 'x', t('removeFavorite')),
+  return favorites.map((item) => createReadonlyCard(catalog, item, favoriteTitle(item.source, catalog), [
+    createIconButton('share-button', () => onShareMix(item), 'share', t('shareMix')),
+    createIconButton('saved-remove-button', () => onRemoveFavorite(item.key), 'x', t('removeFavorite')),
+  ]));
+}
+
+export function renderShared(container, { catalog, mix, title, isSaved }, { onShareMix, onToggleFavorite }) {
+  const starLabel = t(isSaved ? 'removeFavorite' : 'saveFavorite');
+  const starButton = createIconButton('star-button', onToggleFavorite, 'star', starLabel);
+  starButton.setAttribute('aria-pressed', String(isSaved));
+  container.replaceChildren(createReadonlyCard(catalog, mix, title, [
+    createIconButton('share-button', () => onShareMix(mix), 'share', t('shareMix')),
+    starButton,
+  ]));
+}
+
+function createReadonlyCard(catalog, mix, title, headerButtons) {
+  const card = createElement('article', `mix-card mix-card--${mix.tier} saved-card`);
+  const header = createElement('div', 'mix-header');
+  const buttons = createElement('div', 'mix-header-actions');
+  buttons.append(...headerButtons);
+  header.append(title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'), buttons);
+  const rows = createElement('ul', 'mix-components');
+  mix.components.forEach(({ flavorId, share }) => {
+    const row = createElement('li', 'mix-component');
+    row.append(
+      createElement('span', 'mix-component-name', label(catalog, flavorId)),
+      createElement('span', 'mix-component-share', `${share}%`),
     );
-    const rows = createElement('ul', 'mix-components');
-    item.components.forEach(({ flavorId, share }) => {
-      const row = createElement('li', 'mix-component saved-component');
-      row.append(
-        createElement('span', 'mix-component-name', label(catalog, flavorId)),
-        createElement('span', 'mix-component-share', `${share}%`),
-      );
-      rows.append(row);
-    });
-    card.append(header, rows);
-    const noteText = noteForMix(item, catalog)?.[getLang()];
-    if (noteText) {
-      card.append(createElement('p', 'mix-note', noteText));
-    }
-    return card;
+    rows.append(row);
   });
+  card.append(header, rows);
+  const noteText = noteForMix(mix, catalog)?.[getLang()];
+  if (noteText) {
+    card.append(createElement('p', 'mix-note', noteText));
+  }
+  return card;
 }
 
 function createShelfEditor(catalog, shelf, shelfLetter, { onToggleShelf, onPickShelfLetter }) {
@@ -195,7 +211,9 @@ export function renderMix(container, view, actions) {
     const starLabel = t(isSaved ? 'removeFavorite' : 'saveFavorite');
     const starButton = createIconButton('star-button', actions.onToggleFavorite, 'star', starLabel);
     starButton.setAttribute('aria-pressed', String(isSaved));
-    header.append(starButton);
+    const buttons = createElement('div', 'mix-header-actions');
+    buttons.append(createIconButton('share-button', () => actions.onShareMix(mix), 'share', t('shareMix')), starButton);
+    header.append(buttons);
   }
   card.append(header);
   if (isFallbackTier) {
@@ -215,8 +233,12 @@ export function renderMix(container, view, actions) {
   container.replaceChildren(card, ...optional(createExcludedRow(view, actions)));
 }
 
-export function renderBottomActions(container, { isMixScreen, startTab, shelfSize }, actions) {
+export function renderBottomActions(container, { isMixScreen, isSharedScreen, startTab, shelfSize }, actions) {
   const { onSurprise, onShelfMix, onReset, onAnother } = actions;
+  if (isSharedScreen) {
+    container.replaceChildren(createButton('surprise-button', onReset, `🏠 ${t('goHome')}`));
+    return;
+  }
   if (!isMixScreen && startTab === 'shelf') {
     const isShelfReady = shelfSize >= MIN_SHELF_SIZE;
     const label = isShelfReady ? t('shelfMix') : t('shelfNeedMore', { count: MIN_SHELF_SIZE });

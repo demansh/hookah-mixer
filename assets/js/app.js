@@ -2,9 +2,12 @@ import { loadCatalog, recommendSelection, createSessionSeed } from '../core/js/i
 import {
   createStartState, readState, writeState, toSelection, isMixScreen, startMix, canPin, pinFlavor, unpinFlavor,
   removeFromMix, includeFlavor, nextPage, withPage, setTemperature, hasLock, withoutLock, startFlavorMix, setStartTab,
-  isFlavorSource, startShelfMix, isShelfSource,
+  isFlavorSource, startShelfMix, isShelfSource, isSharedScreen,
 } from './state.js';
-import { renderStart, renderMix, renderThermometer, renderBottomActions, conceptLabel } from './render.js';
+import {
+  renderStart, renderMix, renderShared, renderThermometer, renderBottomActions, conceptLabel,
+} from './render.js';
+import { shareMix } from './share.js';
 import { loadShelf, saveShelf, shelfExclusions } from './shelf.js';
 import { loadFavorites, addFavorite, removeFavorite, isFavorite, mixKey as favoriteKey } from './favorites.js';
 import { TEMPERATURES } from './options.js';
@@ -46,6 +49,7 @@ const actions = {
     render();
   },
   onToggleFavorite: () => toggleFavorite(),
+  onShareMix: (mix) => shareMix(mix, catalog, baseUrl),
   onRemoveFavorite: (key) => {
     favorites = removeFavorite(favorites, key);
     render();
@@ -82,6 +86,7 @@ async function main() {
   shelf = loadShelf(catalog);
   favorites = loadFavorites(catalog);
   state = readState(window.location.search, catalog);
+  saveUrl(true);
   window.addEventListener('popstate', () => {
     const nextState = readState(window.location.search, catalog);
     const keepsStartTab = isMixScreen(nextState) && !nextState.source;
@@ -158,8 +163,19 @@ async function render({ preferUnseen = false } = {}) {
   const revision = ++renderRevision;
   renderThermometer(thermometerElement, state.temperature, actions);
   document.body.classList.toggle('is-start-screen', !isMixScreen(state));
-  const bottomView = { isMixScreen: isMixScreen(state), startTab: state.startTab, shelfSize: shelf.size };
+  const bottomView = {
+    isMixScreen: isMixScreen(state),
+    isSharedScreen: isSharedScreen(state),
+    startTab: state.startTab,
+    shelfSize: shelf.size,
+  };
   renderBottomActions(bottomActionsElement, bottomView, actions);
+  if (isSharedScreen(state)) {
+    currentMix = null;
+    showStatus(null);
+    renderSharedMix();
+    return;
+  }
   if (!isMixScreen(state)) {
     currentMix = null;
     showStatus(null);
@@ -208,17 +224,37 @@ async function render({ preferUnseen = false } = {}) {
 }
 
 function toggleFavorite() {
-  const shownMix = heldMix ?? currentMix;
+  const shownMix = isSharedScreen(state) ? state.sharedMix : heldMix ?? currentMix;
   if (!shownMix) {
     return;
   }
   favorites = isFavorite(favorites, shownMix)
     ? removeFavorite(favorites, favoriteKey(shownMix))
     : addFavorite(favorites, shownMix, favoriteSource());
-  renderMixCard(shownMix);
+  if (isSharedScreen(state)) {
+    renderSharedMix();
+  } else {
+    renderMixCard(shownMix);
+  }
+}
+
+function capitalize(text) {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : '';
+}
+
+function renderSharedMix() {
+  renderShared(screenElement, {
+    catalog,
+    mix: state.sharedMix,
+    title: capitalize(state.sharedQuery) || t('sharedMix'),
+    isSaved: isFavorite(favorites, state.sharedMix),
+  }, actions);
 }
 
 function favoriteSource() {
+  if (isSharedScreen(state)) {
+    return { type: 'shared', query: state.sharedQuery };
+  }
   if (state.conceptId) {
     return { type: 'concept', conceptId: state.conceptId };
   }
@@ -256,7 +292,7 @@ function cardTitle() {
     return t('fromShelf');
   }
   const concept = catalog.concepts.find((item) => item.id === state.conceptId);
-  return concept ? conceptLabel(concept) : t('mastersChoice');
+  return concept ? conceptLabel(concept) : t('randomMixTitle');
 }
 
 function renderMixCard(mix) {

@@ -1,9 +1,10 @@
-import { MAX_REQUIRED_FLAVORS, isIngredient } from '../core/js/index.js';
+import { MAX_REQUIRED_FLAVORS, isIngredient, parseMixParams, mixToParams } from '../core/js/index.js';
 import { TEMPERATURES, DEFAULT_TEMPERATURE } from './options.js';
 
 const temperatureTiers = new Set(TEMPERATURES.map((temperature) => temperature.tier));
 const LIST_SEPARATOR = ',';
 const MIX_SCREEN = 'mix';
+const SHARED_SCREEN = 'shared';
 const START_TABS = ['mood', 'taste', 'shelf', 'favorites'];
 const DEFAULT_START_TAB = 'mood';
 const FLAVOR_SOURCE = 'flavor';
@@ -27,6 +28,11 @@ export function createStartState(temperature = DEFAULT_TEMPERATURE, startTab = D
 export function readState(search, catalog) {
   const params = new URLSearchParams(search);
   const temperature = temperatureTiers.has(params.get('t')) ? params.get('t') : DEFAULT_TEMPERATURE;
+  const shared = parseMixParams(params, catalog);
+  if (shared) {
+    const sharedState = { screen: SHARED_SCREEN, sharedMix: shared.mix, sharedQuery: shared.query };
+    return { ...createStartState(temperature), ...sharedState };
+  }
   if (params.get('s') !== MIX_SCREEN) {
     const startTab = START_TABS.includes(params.get('tab')) ? params.get('tab') : DEFAULT_START_TAB;
     return createStartState(temperature, startTab);
@@ -52,7 +58,8 @@ export function readState(search, catalog) {
 }
 
 export function writeState(state) {
-  const params = new URLSearchParams();
+  const isShared = state.screen === SHARED_SCREEN;
+  const params = isShared ? mixToParams(state.sharedMix, state.sharedQuery) : new URLSearchParams();
   if (state.screen === MIX_SCREEN) {
     params.set('s', MIX_SCREEN);
     if (state.conceptId) {
@@ -67,7 +74,7 @@ export function writeState(state) {
     if (state.page > 0) {
       params.set('p', String(state.page));
     }
-  } else if (state.startTab !== DEFAULT_START_TAB) {
+  } else if (!isShared && state.startTab !== DEFAULT_START_TAB) {
     params.set('tab', state.startTab);
   }
   if (state.temperature !== DEFAULT_TEMPERATURE) {
@@ -103,6 +110,10 @@ export function removeFromMix(state, flavorId, mixFlavorIds) {
     locked: lockedRequired(required, locked).length <= MAX_REQUIRED_FLAVORS ? locked : [],
     page: 0,
   };
+}
+
+export function isSharedScreen(state) {
+  return state.screen === SHARED_SCREEN;
 }
 
 export function isMixScreen(state) {
