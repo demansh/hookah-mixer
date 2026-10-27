@@ -64,7 +64,8 @@ async function main() {
   shuffledConcepts = shuffle(catalog.concepts);
   state = readState(window.location.search, catalog);
   window.addEventListener('popstate', () => {
-    state = readState(window.location.search, catalog);
+    const nextState = readState(window.location.search, catalog);
+    state = isMixScreen(nextState) && !isFlavorSource(nextState) ? { ...nextState, startTab: state.startTab } : nextState;
     heldMix = null;
     seenMixKeys.clear();
     render();
@@ -75,7 +76,7 @@ async function main() {
 function resetProgress() {
   sessionSeed = createSessionSeed();
   shuffledConcepts = shuffle(catalog.concepts);
-  update(createStartState(state.temperature), { resetSeen: true });
+  update(createStartState(state.temperature, state.startTab), { resetSeen: true });
 }
 
 function removeFlavor(flavorId) {

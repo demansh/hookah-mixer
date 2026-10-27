@@ -93,7 +93,7 @@ export function renderBottomActions(container, isMixScreen, { onSurprise, onRese
     return;
   }
   container.replaceChildren(
-    createIconButton('reset-button', onReset, 'trash', t('startOver')),
+    createEmojiButton('reset-button', onReset, '🏠', t('goHome')),
     createIconButton('another-button', onAnother, 'refresh', t('anotherMix')),
   );
 }
@@ -151,6 +151,13 @@ function createExcludedRow({ state, catalog }, { onInclude }) {
     row.append(createButton('excluded-chip', () => onInclude(id), `${label(catalog, id)} ✕`));
   });
   return row;
+}
+
+function createEmojiButton(className, onClick, emoji, accessibleLabel) {
+  const button = createButton(`icon-button emoji-button ${className}`, onClick, emoji);
+  button.setAttribute('aria-label', accessibleLabel);
+  button.title = accessibleLabel;
+  return button;
 }
 
 function createIconButton(className, onClick, iconName, accessibleLabel) {

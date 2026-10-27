@@ -35,10 +35,11 @@ export function readState(search, catalog) {
   const excluded = unique(readList(params, 'drop').filter((id) => isKnownIngredient(id) && !required.includes(id)));
   const locked = unique(readList(params, 'lock').filter((id) => isKnownIngredient(id) && !excluded.includes(id)));
   const page = Math.max(0, Number.parseInt(params.get('p') ?? '0', 10) || 0);
+  const source = params.get('from') === FLAVOR_SOURCE && !conceptId ? FLAVOR_SOURCE : null;
   return {
     screen: MIX_SCREEN,
-    startTab: DEFAULT_START_TAB,
-    source: params.get('from') === FLAVOR_SOURCE && !conceptId ? FLAVOR_SOURCE : null,
+    startTab: source === FLAVOR_SOURCE ? 'taste' : DEFAULT_START_TAB,
+    source,
     conceptId,
     required,
     excluded,

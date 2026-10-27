@@ -14,11 +14,6 @@ const ICON_PATHS = {
     'M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16',
     'M8 16H3v5',
   ],
-  trash: [
-    'M3 6h18',
-    'M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6',
-    'M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2',
-  ],
 };
 
 export function createIcon(name) {
