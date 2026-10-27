@@ -340,6 +340,14 @@ button:focus-visible {
   gap: var(--space-3);
 }
 
+.is-start-screen {
+  --bottom-bar-height: 76px;
+}
+
+.is-start-screen .thermometer-row {
+  display: none;
+}
+
 .master {
   flex-shrink: 0;
   width: 44px;

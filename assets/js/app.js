@@ -144,6 +144,7 @@ function saveUrl(replace) {
 async function render({ preferUnseen = false } = {}) {
   const revision = ++renderRevision;
   renderThermometer(thermometerElement, state.temperature, actions);
+  document.body.classList.toggle('is-start-screen', !isMixScreen(state));
   const bottomView = { isMixScreen: isMixScreen(state), startTab: state.startTab, shelfSize: shelf.size };
   renderBottomActions(bottomActionsElement, bottomView, actions);
   if (!isMixScreen(state)) {
