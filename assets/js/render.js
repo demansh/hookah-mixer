@@ -9,7 +9,7 @@ export function conceptLabel(concept) {
   return phrase.charAt(0).toUpperCase() + phrase.slice(1);
 }
 
-export function renderStart(container, { concepts, catalog, startTab, shelf }, actions) {
+export function renderStart(container, { concepts, catalog, startTab, shelf, shelfLetter }, actions) {
   const tabs = createElement('div', 'start-tabs');
   tabs.setAttribute('role', 'group');
   START_TABS.forEach((tab) => {
@@ -18,10 +18,10 @@ export function renderStart(container, { concepts, catalog, startTab, shelf }, a
     button.setAttribute('aria-pressed', String(tab.id === startTab));
     tabs.append(button);
   });
-  container.replaceChildren(tabs, ...createStartContent({ concepts, catalog, startTab, shelf }, actions));
+  container.replaceChildren(tabs, ...createStartContent({ concepts, catalog, startTab, shelf, shelfLetter }, actions));
 }
 
-function createStartContent({ concepts, catalog, startTab, shelf }, actions) {
+function createStartContent({ concepts, catalog, startTab, shelf, shelfLetter }, actions) {
   if (startTab === 'taste') {
     return [
       createElement('p', 'screen-hint', t('tasteHint')),
@@ -32,7 +32,8 @@ function createStartContent({ concepts, catalog, startTab, shelf }, actions) {
     ];
   }
   if (startTab === 'shelf') {
-    return [createElement('p', 'screen-hint', t('shelfHint')), createShelfChips(catalog, shelf, actions)];
+    const editor = createShelfEditor(catalog, shelf, shelfLetter, actions);
+    return [createElement('p', 'screen-hint', t('shelfHint')), ...editor];
   }
   return [createElement('p', 'screen-hint', t('startHint')), createConceptGrid(concepts, actions)];
 }
@@ -43,18 +44,54 @@ function createConceptGrid(concepts, { onPickConcept }) {
   return grid;
 }
 
-function createShelfChips(catalog, shelf, { onToggleShelf }) {
-  const chips = createElement('div', 'flavor-chips');
-  catalog.flavors
+function shelfLetterOf(name) {
+  return name.charAt(0).toLocaleUpperCase(getLang()).replace('Ё', 'Е');
+}
+
+function createShelfEditor(catalog, shelf, shelfLetter, { onToggleShelf, onPickShelfLetter }) {
+  const flavors = catalog.flavors
     .filter(isIngredient)
     .map((flavor) => ({ id: flavor.id, name: flavorLabel(flavor, getLang()) }))
     .sort((left, right) => left.name.localeCompare(right.name, getLang()))
+    .map((flavor) => ({ ...flavor, letter: shelfLetterOf(flavor.name) }));
+  const letters = [...new Set(flavors.map((flavor) => flavor.letter))];
+  const currentLetter = letters.includes(shelfLetter) ? shelfLetter : letters[0];
+  const shelfFlavors = flavors.filter((flavor) => shelf.has(flavor.id));
+
+  const selected = createElement('section', 'shelf-selected');
+  if (shelfFlavors.length === 0) {
+    selected.append(createElement('p', 'shelf-empty', t('shelfEmpty')));
+  } else {
+    const selectedChips = createElement('div', 'flavor-chips');
+    shelfFlavors.forEach(({ id, name }) => {
+      const chip = createButton('flavor-chip shelf-item', () => onToggleShelf(id), `${name} ✕`);
+      chip.setAttribute('aria-label', t('shelfRemove', { flavor: name }));
+      selectedChips.append(chip);
+    });
+    const title = createElement('h2', 'shelf-selected-title', t('shelfSelected', { count: shelfFlavors.length }));
+    selected.append(title, selectedChips);
+  }
+
+  const letterBar = createElement('div', 'shelf-letters');
+  letterBar.setAttribute('role', 'group');
+  letterBar.setAttribute('aria-label', t('shelfLetters'));
+  const shelfLetters = new Set(shelfFlavors.map((flavor) => flavor.letter));
+  letters.forEach((letter) => {
+    const className = `shelf-letter${shelfLetters.has(letter) ? ' shelf-letter--has-items' : ''}`;
+    const button = createButton(className, () => onPickShelfLetter(letter), letter);
+    button.setAttribute('aria-pressed', String(letter === currentLetter));
+    letterBar.append(button);
+  });
+
+  const chips = createElement('div', 'flavor-chips');
+  flavors
+    .filter((flavor) => flavor.letter === currentLetter)
     .forEach(({ id, name }) => {
       const chip = createButton('flavor-chip shelf-chip', () => onToggleShelf(id), name);
       chip.setAttribute('aria-pressed', String(shelf.has(id)));
       chips.append(chip);
     });
-  return chips;
+  return [selected, letterBar, chips];
 }
 
 function createFlavorGroups(catalog, { hiddenIds, createChip }) {

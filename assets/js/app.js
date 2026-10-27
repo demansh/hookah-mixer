@@ -27,6 +27,7 @@ let catalog = null;
 let sessionSeed = createSessionSeed();
 let orderedConcepts = [];
 let shelf = new Set();
+let shelfLetter = null;
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -38,6 +39,10 @@ const actions = {
   onSurprise: () => update(startMix(state, null), { resetSeen: true }),
   onPickFlavor: (flavorId) => update(startFlavorMix(state, flavorId), { resetSeen: true }),
   onToggleShelf: (flavorId) => toggleShelfFlavor(flavorId),
+  onPickShelfLetter: (letter) => {
+    shelfLetter = letter;
+    render();
+  },
   onShelfMix: () => update(startShelfMix(state), { resetSeen: true }),
   onSetStartTab: (startTab) => update(setStartTab(state, startTab), { replace: true }),
   onPin: (flavorId) => holdMix(pinFlavor(state, flavorId)),
@@ -151,7 +156,8 @@ async function render({ preferUnseen = false } = {}) {
     currentMix = null;
     showStatus(null);
     showMaster(masterElement, resolveMood({ temperature: state.temperature }));
-    renderStart(screenElement, { concepts: orderedConcepts, catalog, startTab: state.startTab, shelf }, actions);
+    const startView = { concepts: orderedConcepts, catalog, startTab: state.startTab, shelf, shelfLetter };
+    renderStart(screenElement, startView, actions);
     return;
   }
   if (heldMix) {

@@ -158,6 +158,73 @@ button:focus-visible {
   transform: scale(0.96);
 }
 
+.shelf-selected {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.shelf-selected-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.shelf-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.shelf-item {
+  border-color: var(--color-accent);
+  background: var(--color-surface-raised);
+}
+
+.shelf-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.shelf-letter {
+  position: relative;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.shelf-letter--has-items::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  transform: translateX(-50%);
+}
+
+.shelf-letter[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+.shelf-letter--has-items[aria-pressed="true"]::after {
+  background: var(--color-accent-text);
+}
+
 .shelf-chip[aria-pressed="true"] {
   border-color: var(--color-accent);
   background: var(--color-accent);
