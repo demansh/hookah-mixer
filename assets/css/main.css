@@ -264,15 +264,11 @@ button:focus-visible {
 
 .pin-button {
   margin-left: calc(-1 * var(--space-2));
-  color: var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .pin-button[aria-pressed="true"] {
   color: var(--color-accent);
-}
-
-.pin-button[aria-pressed="true"] .icon {
-  fill: currentColor;
 }
 
 .pin-button:disabled {

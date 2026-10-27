@@ -164,7 +164,7 @@ function createComponentRow({ flavorId, share }, { state, catalog, canPin }, { o
   const pinButton = createIconButton(
     'pin-button',
     () => (isPinned ? onUnpin(flavorId) : onPin(flavorId)),
-    'heart',
+    isPinned ? 'lock-keyhole' : 'lock-open',
     t(isPinned ? 'unpin' : 'pin', { flavor: flavorName }),
   );
   pinButton.setAttribute('aria-pressed', String(isPinned));
