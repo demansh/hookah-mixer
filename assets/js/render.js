@@ -1,5 +1,5 @@
 import { flavorLabel, isIngredient } from '../core/js/index.js';
-import { TEMPERATURES, START_TABS, FLAVOR_CATEGORIES, HIDDEN_TASTE_FLAVORS } from './options.js';
+import { TEMPERATURES, START_TABS, FLAVOR_CATEGORIES, HIDDEN_TASTE_FLAVORS, MIN_SHELF_SIZE } from './options.js';
 import { t, getLang } from './i18n.js';
 import { createIcon } from './icons.js';
 import { CONCEPT_EMOJI } from './concept-emoji.js';
@@ -9,18 +9,42 @@ export function conceptLabel(concept) {
   return phrase.charAt(0).toUpperCase() + phrase.slice(1);
 }
 
-export function renderStart(container, { concepts, catalog, startTab }, actions) {
+export function renderStart(container, { concepts, catalog, startTab, shelf }, actions) {
   const tabs = createElement('div', 'start-tabs');
   tabs.setAttribute('role', 'group');
   START_TABS.forEach((tab) => {
-    const button = createButton('start-tab', () => actions.onSetStartTab(tab.id), t(tab.labelKey));
+    const label = tab.id === 'shelf' && shelf.size > 0 ? `${t(tab.labelKey)} · ${shelf.size}` : t(tab.labelKey);
+    const button = createButton('start-tab', () => actions.onSetStartTab(tab.id), label);
     button.setAttribute('aria-pressed', String(tab.id === startTab));
     tabs.append(button);
   });
-  const content = startTab === 'taste'
-    ? [createElement('p', 'screen-hint', t('tasteHint')), ...createFlavorGroups(catalog, actions)]
-    : [createElement('p', 'screen-hint', t('startHint')), createConceptGrid(concepts, actions)];
-  container.replaceChildren(tabs, ...content);
+  container.replaceChildren(tabs, ...createStartContent({ concepts, catalog, startTab, shelf }, actions));
+}
+
+function createStartContent({ concepts, catalog, startTab, shelf }, actions) {
+  if (startTab === 'taste') {
+    return [
+      createElement('p', 'screen-hint', t('tasteHint')),
+      ...createFlavorGroups(catalog, {
+        hiddenIds: HIDDEN_TASTE_FLAVORS,
+        createChip: (id, name) => createButton('flavor-chip', () => actions.onPickFlavor(id), name),
+      }),
+    ];
+  }
+  if (startTab === 'shelf') {
+    return [
+      createElement('p', 'screen-hint', t('shelfHint')),
+      ...createFlavorGroups(catalog, {
+        hiddenIds: new Set(),
+        createChip: (id, name) => {
+          const chip = createButton('flavor-chip shelf-chip', () => actions.onToggleShelf(id), name);
+          chip.setAttribute('aria-pressed', String(shelf.has(id)));
+          return chip;
+        },
+      }),
+    ];
+  }
+  return [createElement('p', 'screen-hint', t('startHint')), createConceptGrid(concepts, actions)];
 }
 
 function createConceptGrid(concepts, { onPickConcept }) {
@@ -29,9 +53,9 @@ function createConceptGrid(concepts, { onPickConcept }) {
   return grid;
 }
 
-function createFlavorGroups(catalog, { onPickFlavor }) {
+function createFlavorGroups(catalog, { hiddenIds, createChip }) {
   const knownCategories = new Set(FLAVOR_CATEGORIES.map((category) => category.id));
-  const tasteFlavors = catalog.flavors.filter((flavor) => isIngredient(flavor) && !HIDDEN_TASTE_FLAVORS.has(flavor.id));
+  const tasteFlavors = catalog.flavors.filter((flavor) => isIngredient(flavor) && !hiddenIds.has(flavor.id));
   const groups = [
     ...FLAVOR_CATEGORIES.map((category) => ({
       title: `${category.emoji} ${t(category.labelKey)}`,
@@ -47,7 +71,7 @@ function createFlavorGroups(catalog, { onPickFlavor }) {
       group.flavors
         .map((flavor) => ({ id: flavor.id, name: flavorLabel(flavor, getLang()) }))
         .sort((left, right) => left.name.localeCompare(right.name, getLang()))
-        .forEach(({ id, name }) => chips.append(createButton('flavor-chip', () => onPickFlavor(id), name)));
+        .forEach(({ id, name }) => chips.append(createChip(id, name)));
       section.append(createElement('h2', 'flavor-group-title', group.title), chips);
       return section;
     });
@@ -65,10 +89,10 @@ function createConceptButton(concept, onClick) {
 }
 
 export function renderMix(container, view, actions) {
-  const { concept, mix, isFallbackTier, showTitle } = view;
+  const { mix, isFallbackTier, title, nothingFoundKey } = view;
   const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}`);
-  if (showTitle) {
-    card.append(createElement('h2', 'mix-concept', concept ? conceptLabel(concept) : t('mastersChoice')));
+  if (title) {
+    card.append(createElement('h2', 'mix-concept', title));
   }
   if (isFallbackTier) {
     card.append(createElement('p', 'mix-hint', t('fallbackTier')));
@@ -82,12 +106,21 @@ export function renderMix(container, view, actions) {
       card.append(createElement('p', 'mix-note', noteText));
     }
   } else {
-    card.append(createElement('p', 'mix-hint', t('nothingFound')));
+    card.append(createElement('p', 'mix-hint', t(nothingFoundKey)));
   }
   container.replaceChildren(card, ...optional(createExcludedRow(view, actions)));
 }
 
-export function renderBottomActions(container, isMixScreen, { onSurprise, onReset, onAnother }) {
+export function renderBottomActions(container, { isMixScreen, startTab, shelfSize }, actions) {
+  const { onSurprise, onShelfMix, onReset, onAnother } = actions;
+  if (!isMixScreen && startTab === 'shelf') {
+    const isShelfReady = shelfSize >= MIN_SHELF_SIZE;
+    const label = isShelfReady ? t('shelfMix') : t('shelfNeedMore', { count: MIN_SHELF_SIZE });
+    const button = createButton('surprise-button', onShelfMix, label);
+    button.disabled = !isShelfReady;
+    container.replaceChildren(button);
+    return;
+  }
   if (!isMixScreen) {
     container.replaceChildren(createButton('surprise-button', onSurprise, t('randomMix')));
     return;

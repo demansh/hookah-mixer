@@ -2,9 +2,10 @@ import { loadCatalog, recommendSelection, createSessionSeed } from '../core/js/i
 import {
   createStartState, readState, writeState, toSelection, isMixScreen, startMix, canPin, pinFlavor, unpinFlavor,
   removeFromMix, includeFlavor, nextPage, withPage, setTemperature, hasLock, withoutLock, startFlavorMix, setStartTab,
-  isFlavorSource,
+  isFlavorSource, startShelfMix, isShelfSource,
 } from './state.js';
-import { renderStart, renderMix, renderThermometer, renderBottomActions } from './render.js';
+import { renderStart, renderMix, renderThermometer, renderBottomActions, conceptLabel } from './render.js';
+import { loadShelf, saveShelf, shelfExclusions } from './shelf.js';
 import { TEMPERATURES } from './options.js';
 import { resolveMood, showMaster } from './master.js';
 import { initLang, toggleLang, t } from './i18n.js';
@@ -25,6 +26,7 @@ const statusElement = document.getElementById('status');
 let catalog = null;
 let sessionSeed = createSessionSeed();
 let orderedConcepts = [];
+let shelf = new Set();
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -35,6 +37,8 @@ const actions = {
   onPickConcept: (conceptId) => update(startMix(state, conceptId), { resetSeen: true }),
   onSurprise: () => update(startMix(state, null), { resetSeen: true }),
   onPickFlavor: (flavorId) => update(startFlavorMix(state, flavorId), { resetSeen: true }),
+  onToggleShelf: (flavorId) => toggleShelfFlavor(flavorId),
+  onShelfMix: () => update(startShelfMix(state), { resetSeen: true }),
   onSetStartTab: (startTab) => update(setStartTab(state, startTab), { replace: true }),
   onPin: (flavorId) => holdMix(pinFlavor(state, flavorId)),
   onUnpin: (flavorId) => holdMix(unpinFlavor(state, flavorId)),
@@ -63,10 +67,11 @@ async function main() {
     return;
   }
   orderedConcepts = orderConcepts(catalog.concepts);
+  shelf = loadShelf(catalog);
   state = readState(window.location.search, catalog);
   window.addEventListener('popstate', () => {
     const nextState = readState(window.location.search, catalog);
-    const keepsStartTab = isMixScreen(nextState) && !isFlavorSource(nextState);
+    const keepsStartTab = isMixScreen(nextState) && !nextState.source;
     state = keepsStartTab ? { ...nextState, startTab: state.startTab } : nextState;
     heldMix = null;
     seenMixKeys.clear();
@@ -139,12 +144,13 @@ function saveUrl(replace) {
 async function render({ preferUnseen = false } = {}) {
   const revision = ++renderRevision;
   renderThermometer(thermometerElement, state.temperature, actions);
-  renderBottomActions(bottomActionsElement, isMixScreen(state), actions);
+  const bottomView = { isMixScreen: isMixScreen(state), startTab: state.startTab, shelfSize: shelf.size };
+  renderBottomActions(bottomActionsElement, bottomView, actions);
   if (!isMixScreen(state)) {
     currentMix = null;
     showStatus(null);
     showMaster(masterElement, resolveMood({ temperature: state.temperature }));
-    renderStart(screenElement, { concepts: orderedConcepts, catalog, startTab: state.startTab }, actions);
+    renderStart(screenElement, { concepts: orderedConcepts, catalog, startTab: state.startTab, shelf }, actions);
     return;
   }
   if (heldMix) {
@@ -186,20 +192,51 @@ async function render({ preferUnseen = false } = {}) {
   }
 }
 
+function toggleShelfFlavor(flavorId) {
+  if (shelf.has(flavorId)) {
+    shelf.delete(flavorId);
+  } else {
+    shelf.add(flavorId);
+  }
+  saveShelf(shelf);
+  render();
+}
+
+function selectionFor(fromState) {
+  const selection = toSelection(fromState);
+  if (!isShelfSource(fromState)) {
+    return selection;
+  }
+  const kept = new Set(selection.required);
+  const outsideShelf = shelfExclusions(shelf, catalog).filter((flavorId) => !kept.has(flavorId));
+  return { ...selection, excluded: [...new Set([...selection.excluded, ...outsideShelf])] };
+}
+
+function cardTitle() {
+  if (isFlavorSource(state)) {
+    return null;
+  }
+  if (isShelfSource(state)) {
+    return t('fromShelf');
+  }
+  const concept = catalog.concepts.find((item) => item.id === state.conceptId);
+  return concept ? conceptLabel(concept) : t('mastersChoice');
+}
+
 function renderMixCard(mix) {
   renderMix(screenElement, {
     state,
     catalog,
     mix,
-    concept: catalog.concepts.find((concept) => concept.id === state.conceptId) ?? null,
     isFallbackTier: Boolean(mix) && mix.tier !== state.temperature,
-    showTitle: !isFlavorSource(state),
+    title: cardTitle(),
+    nothingFoundKey: isShelfSource(state) ? 'shelfNothingFound' : 'nothingFound',
     canPin: canPin(state),
   }, actions);
 }
 
 async function loadMix(page, fromState = state) {
-  const request = { ...toSelection(fromState), seed: sessionSeed };
+  const request = { ...selectionFor(fromState), seed: sessionSeed };
   const result = await recommendSelection(request, catalog, page);
   if (page > 0 && result.mixes.length === 0) {
     const firstPage = await recommendSelection(request, catalog, 0);
@@ -216,7 +253,7 @@ function loadForState(preferUnseen) {
 }
 
 async function loadLockedMix(fromState) {
-  const request = { ...toSelection(fromState), seed: sessionSeed };
+  const request = { ...selectionFor(fromState), seed: sessionSeed };
   const maxSize = fromState.locked.length + 1;
   let fallbackMix = null;
   for (let page = 0; page < MAX_LOCK_PAGES; page += 1) {

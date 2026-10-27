@@ -4,9 +4,11 @@ import { TEMPERATURES, DEFAULT_TEMPERATURE } from './options.js';
 const temperatureTiers = new Set(TEMPERATURES.map((temperature) => temperature.tier));
 const LIST_SEPARATOR = ',';
 const MIX_SCREEN = 'mix';
-const START_TABS = ['mood', 'taste'];
+const START_TABS = ['mood', 'taste', 'shelf'];
 const DEFAULT_START_TAB = 'mood';
 const FLAVOR_SOURCE = 'flavor';
+const SHELF_SOURCE = 'shelf';
+const SOURCE_START_TABS = { [FLAVOR_SOURCE]: 'taste', [SHELF_SOURCE]: 'shelf' };
 
 export function createStartState(temperature = DEFAULT_TEMPERATURE, startTab = DEFAULT_START_TAB) {
   return {
@@ -35,10 +37,10 @@ export function readState(search, catalog) {
   const excluded = unique(readList(params, 'drop').filter((id) => isKnownIngredient(id) && !required.includes(id)));
   const locked = unique(readList(params, 'lock').filter((id) => isKnownIngredient(id) && !excluded.includes(id)));
   const page = Math.max(0, Number.parseInt(params.get('p') ?? '0', 10) || 0);
-  const source = params.get('from') === FLAVOR_SOURCE && !conceptId ? FLAVOR_SOURCE : null;
+  const source = SOURCE_START_TABS[params.get('from')] && !conceptId ? params.get('from') : null;
   return {
     screen: MIX_SCREEN,
-    startTab: source === FLAVOR_SOURCE ? 'taste' : DEFAULT_START_TAB,
+    startTab: SOURCE_START_TABS[source] ?? DEFAULT_START_TAB,
     source,
     conceptId,
     required,
@@ -56,8 +58,8 @@ export function writeState(state) {
     if (state.conceptId) {
       params.set('c', state.conceptId);
     }
-    if (state.source === FLAVOR_SOURCE) {
-      params.set('from', FLAVOR_SOURCE);
+    if (state.source) {
+      params.set('from', state.source);
     }
     writeList(params, 'keep', state.required);
     writeList(params, 'drop', state.excluded);
@@ -122,6 +124,23 @@ export function startFlavorMix(state, flavorId) {
     locked: [],
     page: 0,
   };
+}
+
+export function startShelfMix(state) {
+  return {
+    ...state,
+    screen: MIX_SCREEN,
+    source: SHELF_SOURCE,
+    conceptId: null,
+    required: [],
+    excluded: [],
+    locked: [],
+    page: 0,
+  };
+}
+
+export function isShelfSource(state) {
+  return state.source === SHELF_SOURCE;
 }
 
 export function setStartTab(state, startTab) {

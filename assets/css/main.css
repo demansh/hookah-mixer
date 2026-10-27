@@ -158,6 +158,12 @@ button:focus-visible {
   transform: scale(0.96);
 }
 
+.shelf-chip[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
 .concept-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));

@@ -9,7 +9,10 @@ export const DEFAULT_TEMPERATURE = 'classic';
 export const START_TABS = [
   { id: 'mood', labelKey: 'tabMood' },
   { id: 'taste', labelKey: 'tabTaste' },
+  { id: 'shelf', labelKey: 'tabShelf' },
 ];
+
+export const MIN_SHELF_SIZE = 3;
 
 export const HIDDEN_TASTE_FLAVORS = new Set(['cooling']);
 
@@ -31,4 +34,5 @@ export const FLAVOR_CATEGORIES = [
   { id: 'candy', emoji: '🍬', labelKey: 'categoryCandy' },
   { id: 'nut', emoji: '🥜', labelKey: 'categoryNut' },
   { id: 'tobacco', emoji: '🍂', labelKey: 'categoryTobacco' },
+  { id: 'cooling', emoji: '❄️', labelKey: 'categoryCooling' },
 ];
