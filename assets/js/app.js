@@ -6,6 +6,7 @@ import {
 } from './state.js';
 import { renderStart, renderMix, renderThermometer, renderBottomActions, conceptLabel } from './render.js';
 import { loadShelf, saveShelf, shelfExclusions } from './shelf.js';
+import { loadFavorites, addFavorite, removeFavorite, isFavorite, mixKey as favoriteKey } from './favorites.js';
 import { TEMPERATURES } from './options.js';
 import { resolveMood, showMaster } from './master.js';
 import { initLang, toggleLang, t } from './i18n.js';
@@ -28,6 +29,7 @@ let sessionSeed = createSessionSeed();
 let orderedConcepts = [];
 let shelf = new Set();
 let shelfLetter = null;
+let favorites = [];
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -41,6 +43,11 @@ const actions = {
   onToggleShelf: (flavorId) => toggleShelfFlavor(flavorId),
   onPickShelfLetter: (letter) => {
     shelfLetter = letter;
+    render();
+  },
+  onToggleFavorite: () => toggleFavorite(),
+  onRemoveFavorite: (key) => {
+    favorites = removeFavorite(favorites, key);
     render();
   },
   onShelfMix: () => update(startShelfMix(state), { resetSeen: true }),
@@ -73,6 +80,7 @@ async function main() {
   }
   orderedConcepts = orderConcepts(catalog.concepts);
   shelf = loadShelf(catalog);
+  favorites = loadFavorites(catalog);
   state = readState(window.location.search, catalog);
   window.addEventListener('popstate', () => {
     const nextState = readState(window.location.search, catalog);
@@ -156,7 +164,7 @@ async function render({ preferUnseen = false } = {}) {
     currentMix = null;
     showStatus(null);
     showMaster(masterElement, resolveMood({ temperature: state.temperature }));
-    const startView = { concepts: orderedConcepts, catalog, startTab: state.startTab, shelf, shelfLetter };
+    const startView = { concepts: orderedConcepts, catalog, startTab: state.startTab, shelf, shelfLetter, favorites };
     renderStart(screenElement, startView, actions);
     return;
   }
@@ -199,6 +207,27 @@ async function render({ preferUnseen = false } = {}) {
   }
 }
 
+function toggleFavorite() {
+  const shownMix = heldMix ?? currentMix;
+  if (!shownMix) {
+    return;
+  }
+  favorites = isFavorite(favorites, shownMix)
+    ? removeFavorite(favorites, favoriteKey(shownMix))
+    : addFavorite(favorites, shownMix, favoriteSource());
+  renderMixCard(shownMix);
+}
+
+function favoriteSource() {
+  if (state.conceptId) {
+    return { type: 'concept', conceptId: state.conceptId };
+  }
+  if (isFlavorSource(state)) {
+    return { type: 'flavor' };
+  }
+  return { type: isShelfSource(state) ? 'shelf' : 'random' };
+}
+
 function toggleShelfFlavor(flavorId) {
   if (shelf.has(flavorId)) {
     shelf.delete(flavorId);
@@ -239,6 +268,7 @@ function renderMixCard(mix) {
     title: cardTitle(),
     nothingFoundKey: isShelfSource(state) ? 'shelfNothingFound' : 'nothingFound',
     canPin: canPin(state),
+    isSaved: Boolean(mix) && isFavorite(favorites, mix),
   }, actions);
 }
 

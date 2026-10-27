@@ -10,6 +10,7 @@ export const START_TABS = [
   { id: 'mood', labelKey: 'tabMood' },
   { id: 'taste', labelKey: 'tabTaste' },
   { id: 'shelf', labelKey: 'tabShelf' },
+  { id: 'favorites', labelKey: 'tabFavorites' },
 ];
 
 export const MIN_SHELF_SIZE = 3;

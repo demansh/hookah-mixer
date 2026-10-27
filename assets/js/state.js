@@ -4,7 +4,7 @@ import { TEMPERATURES, DEFAULT_TEMPERATURE } from './options.js';
 const temperatureTiers = new Set(TEMPERATURES.map((temperature) => temperature.tier));
 const LIST_SEPARATOR = ',';
 const MIX_SCREEN = 'mix';
-const START_TABS = ['mood', 'taste', 'shelf'];
+const START_TABS = ['mood', 'taste', 'shelf', 'favorites'];
 const DEFAULT_START_TAB = 'mood';
 const FLAVOR_SOURCE = 'flavor';
 const SHELF_SOURCE = 'shelf';

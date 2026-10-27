@@ -1,4 +1,4 @@
-import { flavorLabel, isIngredient } from '../core/js/index.js';
+import { flavorLabel, isIngredient, noteForMix } from '../core/js/index.js';
 import { TEMPERATURES, START_TABS, FLAVOR_CATEGORIES, HIDDEN_TASTE_FLAVORS, MIN_SHELF_SIZE } from './options.js';
 import { t, getLang } from './i18n.js';
 import { createIcon } from './icons.js';
@@ -9,19 +9,34 @@ export function conceptLabel(concept) {
   return phrase.charAt(0).toUpperCase() + phrase.slice(1);
 }
 
-export function renderStart(container, { concepts, catalog, startTab, shelf, shelfLetter }, actions) {
+export function renderStart(container, view, actions) {
+  const { startTab, shelf, favorites } = view;
   const tabs = createElement('div', 'start-tabs');
   tabs.setAttribute('role', 'group');
   START_TABS.forEach((tab) => {
-    const label = tab.id === 'shelf' && shelf.size > 0 ? `${t(tab.labelKey)} · ${shelf.size}` : t(tab.labelKey);
-    const button = createButton('start-tab', () => actions.onSetStartTab(tab.id), label);
+    const selectTab = () => actions.onSetStartTab(tab.id);
+    const button = createButton(`start-tab start-tab--${tab.id}`, selectTab, tabLabel(tab, view));
     button.setAttribute('aria-pressed', String(tab.id === startTab));
+    if (tab.id === 'favorites') {
+      button.setAttribute('aria-label', `${t(tab.labelKey)}: ${favorites.length}`);
+      button.title = t(tab.labelKey);
+    }
     tabs.append(button);
   });
-  container.replaceChildren(tabs, ...createStartContent({ concepts, catalog, startTab, shelf, shelfLetter }, actions));
+  container.replaceChildren(tabs, ...createStartContent(view, actions));
 }
 
-function createStartContent({ concepts, catalog, startTab, shelf, shelfLetter }, actions) {
+function tabLabel(tab, { shelf, favorites }) {
+  if (tab.id === 'favorites') {
+    return favorites.length > 0 ? `★ ${favorites.length}` : '☆';
+  }
+  if (tab.id === 'shelf' && shelf.size > 0) {
+    return `${t(tab.labelKey)} · ${shelf.size}`;
+  }
+  return t(tab.labelKey);
+}
+
+function createStartContent({ concepts, catalog, startTab, shelf, shelfLetter, favorites }, actions) {
   if (startTab === 'taste') {
     return [
       createElement('p', 'screen-hint', t('tasteHint')),
@@ -30,6 +45,9 @@ function createStartContent({ concepts, catalog, startTab, shelf, shelfLetter },
         createChip: (id, name) => createButton('flavor-chip', () => actions.onPickFlavor(id), name),
       }),
     ];
+  }
+  if (startTab === 'favorites') {
+    return createFavoritesList(catalog, favorites, actions);
   }
   if (startTab === 'shelf') {
     const editor = createShelfEditor(catalog, shelf, shelfLetter, actions);
@@ -46,6 +64,45 @@ function createConceptGrid(concepts, { onPickConcept }) {
 
 function shelfLetterOf(name) {
   return name.charAt(0).toLocaleUpperCase(getLang()).replace('Ё', 'Е');
+}
+
+function favoriteTitle(source, catalog) {
+  if (source.type === 'concept') {
+    const concept = catalog.concepts.find((item) => item.id === source.conceptId);
+    return concept ? conceptLabel(concept) : null;
+  }
+  const sourceKeys = { flavor: 'byFlavor', shelf: 'fromShelf', random: 'mastersChoice' };
+  return t(sourceKeys[source.type]);
+}
+
+function createFavoritesList(catalog, favorites, { onRemoveFavorite }) {
+  if (favorites.length === 0) {
+    return [createElement('p', 'screen-hint', t('favoritesEmpty'))];
+  }
+  return favorites.map((item) => {
+    const card = createElement('article', `mix-card mix-card--${item.tier} saved-card`);
+    const header = createElement('div', 'mix-header');
+    const title = favoriteTitle(item.source, catalog);
+    header.append(
+      title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'),
+      createIconButton('saved-remove-button', () => onRemoveFavorite(item.key), 'x', t('removeFavorite')),
+    );
+    const rows = createElement('ul', 'mix-components');
+    item.components.forEach(({ flavorId, share }) => {
+      const row = createElement('li', 'mix-component saved-component');
+      row.append(
+        createElement('span', 'mix-component-name', label(catalog, flavorId)),
+        createElement('span', 'mix-component-share', `${share}%`),
+      );
+      rows.append(row);
+    });
+    card.append(header, rows);
+    const noteText = noteForMix(item, catalog)?.[getLang()];
+    if (noteText) {
+      card.append(createElement('p', 'mix-note', noteText));
+    }
+    return card;
+  });
 }
 
 function createShelfEditor(catalog, shelf, shelfLetter, { onToggleShelf, onPickShelfLetter }) {
@@ -130,11 +187,17 @@ function createConceptButton(concept, onClick) {
 }
 
 export function renderMix(container, view, actions) {
-  const { mix, isFallbackTier, title, nothingFoundKey } = view;
+  const { mix, isFallbackTier, title, nothingFoundKey, isSaved } = view;
   const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}`);
-  if (title) {
-    card.append(createElement('h2', 'mix-concept', title));
+  const header = createElement('div', 'mix-header');
+  header.append(title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'));
+  if (mix) {
+    const starLabel = t(isSaved ? 'removeFavorite' : 'saveFavorite');
+    const starButton = createIconButton('star-button', actions.onToggleFavorite, 'star', starLabel);
+    starButton.setAttribute('aria-pressed', String(isSaved));
+    header.append(starButton);
   }
+  card.append(header);
   if (isFallbackTier) {
     card.append(createElement('p', 'mix-hint', t('fallbackTier')));
   }

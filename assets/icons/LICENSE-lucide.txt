@@ -1,4 +1,4 @@
-Icons "refresh-cw", "lock-open", "lock-keyhole" and "x" in assets/js/icons.js and the "flask-conical" shape in assets/icons/icon.svg
+Icons "refresh-cw", "lock-open", "lock-keyhole", "star" and "x" in assets/js/icons.js and the "flask-conical" shape in assets/icons/icon.svg
 are from Lucide (https://lucide.dev).
 
 ISC License
