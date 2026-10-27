@@ -114,3 +114,23 @@ export const CONCEPT_EMOJI = {
   'oatmeal-cookie': '🍪',
   bedtime: '🛌',
 };
+
+export const CONCEPT_ORDER = [
+  'category-melons', 'tropical-fruits', 'pina-colada', 'mojito', 'citrus-burst', 'category-cocktails', 'berry-tea',
+  'dessert-mood', 'pink-lemonade', 'fruit-mix', 'jam', 'kompot', 'sour-mood', 'category-candy', 'berry-mors',
+  'sweet-tooth', 'category-drinks',
+  'black-forest', 'apple-pie', 'cuba-libre', 'margarita', 'napoleon', 'creme-brulee', 'panna-cotta',
+  'category-herbs', 'banoffee', 'category-spices', 'oatmeal', 'sbiten', 'tiramisu', 'gingerbread', 'masala-chai',
+  'milk-tea', 'churros', 'sangria', 'aperol-spritz', 'category-nuts', 'hugo-spritz', 'oatmeal-cookie', 'lemon-tart',
+  'mulled-wine', 'gin-tonic', 'bellini', 'exotic', 'category-flowers', 'irish-coffee', 'smores', 'baklava',
+  'matcha-latte', 'category-alcohol', 'turkish-delight', 'category-vegetables',
+  'summer-heat', 'tropical-beach', 'summer-evening', 'snowfall', 'sea-breeze', 'rainy-day', 'autumn', 'morning',
+  'sunrise', 'winter-evening', 'dacha', 'bedtime', 'maslenitsa', 'spring', 'summer-garden', 'lazy-sunday',
+  'thunderstorm', 'jungle', 'forest-walk', 'mountains', 'indian-summer', 'oasis', 'breakfast', 'new-year',
+  'midnight',
+  'maldives-sunset', 'marrakech', 'pale-petersburg', 'rainy-london', 'italian-summer', 'havana', 'thailand',
+  'mexico', 'crimea-summer', 'rio-carnival', 'moscow-evening', 'paris-morning', 'scandinavia', 'provence',
+  'india-bazaar', 'new-york', 'tokyo-garden', 'istanbul', 'sunny-abkhazia', 'georgia',
+  'sunny-mood', 'energy', 'green-mood', 'relax', 'cozy-evening', 'red-mood', 'cinema', 'pink-mood', 'romance',
+  'melancholy', 'airy-mood', 'dark-mood', 'celebration', 'childhood', 'party', 'adventure', 'elegance',
+];

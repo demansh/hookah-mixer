@@ -8,6 +8,7 @@ import { renderStart, renderMix, renderThermometer, renderBottomActions } from '
 import { TEMPERATURES } from './options.js';
 import { resolveMood, showMaster } from './master.js';
 import { initLang, toggleLang, t } from './i18n.js';
+import { CONCEPT_ORDER } from './concept-emoji.js';
 
 const baseUrl = document.documentElement.dataset.baseurl || '';
 const tierOrder = TEMPERATURES.map((temperature) => temperature.tier);
@@ -23,7 +24,7 @@ const statusElement = document.getElementById('status');
 
 let catalog = null;
 let sessionSeed = createSessionSeed();
-let shuffledConcepts = [];
+let orderedConcepts = [];
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -61,11 +62,12 @@ async function main() {
     showStatus(t('loadError'));
     return;
   }
-  shuffledConcepts = shuffle(catalog.concepts);
+  orderedConcepts = orderConcepts(catalog.concepts);
   state = readState(window.location.search, catalog);
   window.addEventListener('popstate', () => {
     const nextState = readState(window.location.search, catalog);
-    state = isMixScreen(nextState) && !isFlavorSource(nextState) ? { ...nextState, startTab: state.startTab } : nextState;
+    const keepsStartTab = isMixScreen(nextState) && !isFlavorSource(nextState);
+    state = keepsStartTab ? { ...nextState, startTab: state.startTab } : nextState;
     heldMix = null;
     seenMixKeys.clear();
     render();
@@ -75,7 +77,6 @@ async function main() {
 
 function resetProgress() {
   sessionSeed = createSessionSeed();
-  shuffledConcepts = shuffle(catalog.concepts);
   update(createStartState(state.temperature, state.startTab), { resetSeen: true });
 }
 
@@ -143,7 +144,7 @@ async function render({ preferUnseen = false } = {}) {
     currentMix = null;
     showStatus(null);
     showMaster(masterElement, resolveMood({ temperature: state.temperature }));
-    renderStart(screenElement, { concepts: shuffledConcepts, catalog, startTab: state.startTab }, actions);
+    renderStart(screenElement, { concepts: orderedConcepts, catalog, startTab: state.startTab }, actions);
     return;
   }
   if (heldMix) {
@@ -252,13 +253,13 @@ function pickMix(mixes, tier) {
   return [...mixes].sort((left, right) => distance(left) - distance(right))[0] ?? null;
 }
 
-function shuffle(items) {
-  const shuffled = [...items];
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-  return shuffled;
+function orderConcepts(concepts) {
+  const rank = new Map(CONCEPT_ORDER.map((conceptId, index) => [conceptId, index]));
+  const position = (concept) => rank.get(concept.id) ?? CONCEPT_ORDER.length;
+  return concepts
+    .map((concept, index) => ({ concept, index }))
+    .sort((left, right) => position(left.concept) - position(right.concept) || left.index - right.index)
+    .map(({ concept }) => concept);
 }
 
 function showStatus(message) {
