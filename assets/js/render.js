@@ -298,10 +298,11 @@ export function renderBottomActions(container, { isMixScreen, isSharedScreen, st
     container.replaceChildren(createButton('surprise-button', onSurprise, t('randomMix')));
     return;
   }
-  container.replaceChildren(
-    createEmojiButton('reset-button', onReset, '🏠', t('goHome')),
-    createLabeledIconButton('another-button', onAnother, 'refresh', t('anotherMix')),
-  );
+  const tabName = t(START_TABS.find((tab) => tab.id === startTab)?.labelKey ?? 'tabMood');
+  const backButton = createButton('back-button', onReset, `← ${tabName}`);
+  backButton.setAttribute('aria-label', t('backTo', { tab: tabName }));
+  const anotherButton = createLabeledIconButton('another-button', onAnother, 'refresh', t('anotherMix'));
+  container.replaceChildren(backButton, anotherButton);
 }
 
 export function renderThermometer(container, currentTier, { onSetTemperature }) {
@@ -500,13 +501,6 @@ function createExcludedRow({ state, catalog }, { onInclude }) {
     row.append(createButton('excluded-chip', () => onInclude(id), `${label(catalog, id)} ✕`));
   });
   return row;
-}
-
-function createEmojiButton(className, onClick, emoji, accessibleLabel) {
-  const button = createButton(`icon-button emoji-button ${className}`, onClick, emoji);
-  button.setAttribute('aria-label', accessibleLabel);
-  button.title = accessibleLabel;
-  return button;
 }
 
 function createLabeledIconButton(className, onClick, iconName, text) {
