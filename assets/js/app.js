@@ -40,6 +40,7 @@ let shelfLetter = null;
 let favorites = [];
 let lastRevealedKey = null;
 let pendingEdit = null;
+const scrollByTab = new Map();
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -94,13 +95,16 @@ async function main() {
   favorites = loadFavorites(catalog);
   state = readState(window.location.search, catalog);
   saveUrl(true);
+  window.history.scrollRestoration = 'manual';
   window.addEventListener('popstate', () => {
+    rememberScroll();
     const nextState = readState(window.location.search, catalog);
     const keepsStartTab = isMixScreen(nextState) && !nextState.source;
     state = keepsStartTab ? { ...nextState, startTab: state.startTab } : nextState;
     heldMix = null;
     seenMixKeys.clear();
     render();
+    restoreScroll();
   });
   render();
 }
@@ -150,12 +154,28 @@ function update(nextState, { replace = false, keepScroll = false, resetSeen = fa
   if (resetSeen) {
     seenMixKeys.clear();
   }
+  rememberScroll();
   state = nextState;
   saveUrl(replace);
   render({ preferUnseen });
   if (!keepScroll) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    restoreScroll();
   }
+}
+
+function isStartScreen(someState) {
+  return !isMixScreen(someState) && !isSharedScreen(someState);
+}
+
+function rememberScroll() {
+  if (isStartScreen(state)) {
+    scrollByTab.set(state.startTab, window.scrollY);
+  }
+}
+
+function restoreScroll() {
+  const top = isStartScreen(state) ? scrollByTab.get(state.startTab) ?? 0 : 0;
+  window.scrollTo({ top, behavior: 'instant' });
 }
 
 function saveUrl(replace) {
