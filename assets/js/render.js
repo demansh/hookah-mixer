@@ -4,6 +4,17 @@ import { t, getLang } from './i18n.js';
 import { createIcon } from './icons.js';
 import { CONCEPT_EMOJI } from './concept-emoji.js';
 import { addPressHandlers } from './long-press.js';
+import { flavorColor } from './flavor-colors.js';
+
+const TASTE_TRAITS = [
+  { trait: 'sweet', labelKey: 'tasteSweet' },
+  { trait: 'sour', labelKey: 'tasteSour' },
+  { trait: 'fresh', labelKey: 'tasteFresh' },
+];
+const TASTE_SCALE = 5;
+const REVEAL_STEP_MS = 70;
+const COUNT_UP_MS = 450;
+const COUNT_UP_SAFETY_MS = 100;
 
 export function conceptLabel(concept) {
   const phrase = concept.phrases[getLang()][0] ?? concept.phrases.ru[0] ?? concept.id;
@@ -109,12 +120,12 @@ function createReadonlyCard(catalog, mix, title, headerButtons) {
   mix.components.forEach(({ flavorId, share }) => {
     const row = createElement('li', 'mix-component');
     row.append(
-      createElement('span', 'mix-component-name', label(catalog, flavorId)),
+      createFlavorName(catalog, flavorId),
       createElement('span', 'mix-component-share', `${share}%`),
     );
     rows.append(row);
   });
-  card.append(header, rows);
+  card.append(header, createMixBar(mix), rows, createTasteProfile(mix, catalog));
   const noteText = noteForMix(mix, catalog)?.[getLang()];
   if (noteText) {
     card.append(createElement('p', 'mix-note', noteText));
@@ -211,8 +222,10 @@ function createConceptButton(concept, { onPickConcept, onPeekConcept, onPeekEnd 
 }
 
 export function renderMix(container, view, actions) {
-  const { mix, isFallbackTier, title, nothingFoundKey, isSaved } = view;
-  const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}`);
+  const { mix, isFallbackTier, title, nothingFoundKey, isSaved, animate, catalog } = view;
+  const shouldAnimate = animate && !prefersReducedMotion();
+  const revealClass = shouldAnimate ? ' mix-card--reveal' : '';
+  const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}${revealClass}`);
   const header = createElement('div', 'mix-header');
   header.append(title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'));
   if (mix) {
@@ -229,8 +242,15 @@ export function renderMix(container, view, actions) {
   }
   if (mix) {
     const componentList = createElement('ul', 'mix-components');
-    mix.components.forEach((component) => componentList.append(createComponentRow(component, view, actions)));
-    card.append(componentList);
+    mix.components.forEach((component, index) => {
+      const row = createComponentRow(component, view, actions);
+      row.style.setProperty('--reveal-index', String(index));
+      componentList.append(row);
+    });
+    card.append(createMixBar(mix), componentList, createTasteProfile(mix, catalog));
+    if (shouldAnimate) {
+      countUpShares(componentList);
+    }
     const noteText = mix.note?.[getLang()];
     if (noteText) {
       card.append(createElement('p', 'mix-note', noteText));
@@ -287,6 +307,87 @@ export function renderThermometer(container, currentTier, { onSetTemperature }) 
   container.replaceChildren(scale);
 }
 
+function createFlavorName(catalog, flavorId) {
+  const name = createElement('span', 'mix-component-name');
+  const dot = createElement('span', 'flavor-dot');
+  dot.style.setProperty('--flavor-color', flavorColor(flavorId));
+  dot.setAttribute('aria-hidden', 'true');
+  name.append(dot, document.createTextNode(label(catalog, flavorId)));
+  return name;
+}
+
+function createMixBar(mix) {
+  const bar = createElement('div', 'mix-bar');
+  bar.setAttribute('aria-hidden', 'true');
+  mix.components.forEach(({ flavorId, share }, index) => {
+    const segment = createElement('span', 'mix-bar-segment');
+    segment.style.setProperty('--flavor-color', flavorColor(flavorId));
+    segment.style.setProperty('flex-grow', String(share));
+    segment.style.setProperty('--reveal-index', String(index));
+    bar.append(segment);
+  });
+  return bar;
+}
+
+function createTasteProfile(mix, catalog) {
+  const profile = createElement('div', 'taste-profile');
+  const parts = TASTE_TRAITS.map(({ trait, labelKey }) => {
+    const level = Math.round(weightedTrait(mix, catalog, trait));
+    const item = createElement('div', 'taste-trait');
+    const dots = createElement('span', 'taste-dots');
+    for (let index = 0; index < TASTE_SCALE; index += 1) {
+      dots.append(createElement('span', `taste-dot${index < level ? ' taste-dot--on' : ''}`));
+    }
+    item.append(createElement('span', 'taste-label', t(labelKey)), dots);
+    profile.append(item);
+    return `${t(labelKey)} ${level}/${TASTE_SCALE}`;
+  });
+  profile.setAttribute('role', 'img');
+  profile.setAttribute('aria-label', parts.join(', '));
+  return profile;
+}
+
+function weightedTrait(mix, catalog, trait) {
+  const total = mix.components.reduce((sum, { share }) => sum + share, 0) || 1;
+  return mix.components.reduce((sum, { flavorId, share }) => {
+    const value = catalog.flavorsById.get(flavorId)?.[trait] ?? 0;
+    return sum + value * share;
+  }, 0) / total;
+}
+
+function countUpShares(componentList) {
+  componentList.querySelectorAll('.mix-component-share').forEach((element, index) => {
+    const finalText = element.textContent;
+    const target = Number.parseInt(finalText, 10);
+    const delay = index * REVEAL_STEP_MS;
+    const startAt = performance.now() + delay;
+    let isDone = false;
+    const finish = () => {
+      isDone = true;
+      element.textContent = finalText;
+    };
+    const tick = (now) => {
+      if (isDone) {
+        return;
+      }
+      const progress = Math.min(1, Math.max(0, (now - startAt) / COUNT_UP_MS));
+      element.textContent = `${Math.round(target * (1 - (1 - progress) ** 3))}%`;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        finish();
+      }
+    };
+    element.textContent = '0%';
+    requestAnimationFrame(tick);
+    setTimeout(finish, delay + COUNT_UP_MS + COUNT_UP_SAFETY_MS);
+  });
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 function createComponentRow({ flavorId, share }, { state, catalog, canPin }, { onPin, onUnpin, onExclude }) {
   const isPinned = state.required.includes(flavorId);
   const flavorName = label(catalog, flavorId);
@@ -301,7 +402,7 @@ function createComponentRow({ flavorId, share }, { state, catalog, canPin }, { o
   pinButton.disabled = !isPinned && !canPin;
   item.append(
     pinButton,
-    createElement('span', 'mix-component-name', flavorName),
+    createFlavorName(catalog, flavorId),
     createElement('span', 'mix-component-share', `${share}%`),
     createIconButton('exclude-button', () => onExclude(flavorId), 'x', t('remove', { flavor: flavorName })),
   );

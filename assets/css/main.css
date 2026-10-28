@@ -344,6 +344,111 @@ button:focus-visible {
   color: var(--color-text-muted);
 }
 
+.mix-bar {
+  display: flex;
+  gap: 2px;
+  height: 10px;
+  margin: 0 0 var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+}
+
+.mix-bar-segment {
+  flex-basis: 0;
+  min-width: 6px;
+  background: var(--flavor-color);
+}
+
+.flavor-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: var(--space-2);
+  border-radius: 50%;
+  background: var(--flavor-color);
+  vertical-align: 1px;
+}
+
+.taste-profile {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.taste-trait {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.taste-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.taste-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.taste-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.taste-dot--on {
+  background: var(--tier-color, var(--color-accent));
+}
+
+.mix-card--reveal .mix-component {
+  animation: reveal-row 320ms ease-out both;
+  animation-delay: calc(var(--reveal-index) * 70ms);
+}
+
+.mix-card--reveal .mix-bar-segment {
+  transform-origin: left center;
+  animation: reveal-segment 420ms ease-out both;
+  animation-delay: calc(var(--reveal-index) * 70ms);
+}
+
+.mix-card--reveal .taste-profile,
+.mix-card--reveal .mix-note {
+  animation: reveal-fade 400ms ease-out 250ms both;
+}
+
+@keyframes reveal-row {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-segment {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .mix-components {
   margin: 0;
   padding: 0;

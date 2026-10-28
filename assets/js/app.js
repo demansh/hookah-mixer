@@ -38,6 +38,7 @@ let orderedConcepts = [];
 let shelf = new Set();
 let shelfLetter = null;
 let favorites = [];
+let lastRevealedKey = null;
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -326,10 +327,14 @@ function cardTitle() {
 }
 
 function renderMixCard(mix) {
+  const revealKey = mix ? favoriteKey(mix) : null;
+  const animate = Boolean(mix) && revealKey !== lastRevealedKey;
+  lastRevealedKey = revealKey;
   renderMix(screenElement, {
     state,
     catalog,
     mix,
+    animate,
     isFallbackTier: Boolean(mix) && mix.tier !== state.temperature,
     title: cardTitle(),
     nothingFoundKey: isShelfSource(state) ? 'shelfNothingFound' : 'nothingFound',
