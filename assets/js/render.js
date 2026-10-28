@@ -15,6 +15,7 @@ const TASTE_SCALE = 5;
 const REVEAL_STEP_MS = 70;
 const COUNT_UP_MS = 450;
 const COUNT_UP_SAFETY_MS = 100;
+const MORPH_MS = 400;
 
 export function conceptLabel(concept) {
   const phrase = concept.phrases[getLang()][0] ?? concept.phrases.ru[0] ?? concept.id;
@@ -222,10 +223,11 @@ function createConceptButton(concept, { onPickConcept, onPeekConcept, onPeekEnd 
 }
 
 export function renderMix(container, view, actions) {
-  const { mix, isFallbackTier, title, nothingFoundKey, isSaved, animate, catalog } = view;
+  const { mix, isFallbackTier, title, nothingFoundKey, isSaved, animate, edit, catalog } = view;
   const shouldAnimate = animate && !prefersReducedMotion();
-  const revealClass = shouldAnimate ? ' mix-card--reveal' : '';
-  const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}${revealClass}`);
+  const morph = mix && edit && !prefersReducedMotion() ? edit : null;
+  const motionClass = shouldAnimate ? ' mix-card--reveal' : morph ? ' mix-card--morph' : '';
+  const card = createElement('article', `mix-card mix-card--${mix?.tier ?? 'none'}${motionClass}`);
   const header = createElement('div', 'mix-header');
   header.append(title ? createElement('h2', 'mix-concept', title) : createElement('span', 'mix-concept'));
   if (mix) {
@@ -240,16 +242,30 @@ export function renderMix(container, view, actions) {
   if (isFallbackTier) {
     card.append(createElement('p', 'mix-hint', t('fallbackTier')));
   }
+  let morphParts = null;
   if (mix) {
+    const previousShares = new Map((morph?.previousMix.components ?? []).map((item) => [item.flavorId, item.share]));
     const componentList = createElement('ul', 'mix-components');
     mix.components.forEach((component, index) => {
       const row = createComponentRow(component, view, actions);
       row.style.setProperty('--reveal-index', String(index));
+      if (morph && !previousShares.has(component.flavorId)) {
+        row.classList.add('mix-component--arrived');
+      }
       componentList.append(row);
     });
-    card.append(createMixBar(mix), componentList, createTasteProfile(mix, catalog));
+    const bar = morph ? createMorphBar(mix, morph) : createMixBar(mix);
+    const leavingRow = morph ? insertLeavingRow(componentList, catalog, morph) : null;
+    card.append(bar, componentList, createTasteProfile(mix, catalog));
     if (shouldAnimate) {
       countUpShares(componentList);
+    }
+    if (morph) {
+      morphParts = { bar, leavingRow };
+      componentList.querySelectorAll('.mix-component:not(.mix-component--leaving)').forEach((row, index) => {
+        const { flavorId, share } = mix.components[index];
+        tweenShare(row.querySelector('.mix-component-share'), previousShares.get(flavorId) ?? 0, share, 0, MORPH_MS);
+      });
     }
     const noteText = mix.note?.[getLang()];
     if (noteText) {
@@ -259,6 +275,9 @@ export function renderMix(container, view, actions) {
     card.append(createElement('p', 'mix-hint', t(nothingFoundKey)));
   }
   container.replaceChildren(card, ...optional(createExcludedRow(view, actions)));
+  if (morphParts) {
+    startMorph(morphParts);
+  }
 }
 
 export function renderBottomActions(container, { isMixScreen, isSharedScreen, startTab, shelfSize }, actions) {
@@ -357,31 +376,93 @@ function weightedTrait(mix, catalog, trait) {
 
 function countUpShares(componentList) {
   componentList.querySelectorAll('.mix-component-share').forEach((element, index) => {
-    const finalText = element.textContent;
-    const target = Number.parseInt(finalText, 10);
-    const delay = index * REVEAL_STEP_MS;
-    const startAt = performance.now() + delay;
-    let isDone = false;
-    const finish = () => {
-      isDone = true;
-      element.textContent = finalText;
-    };
-    const tick = (now) => {
-      if (isDone) {
-        return;
-      }
-      const progress = Math.min(1, Math.max(0, (now - startAt) / COUNT_UP_MS));
-      element.textContent = `${Math.round(target * (1 - (1 - progress) ** 3))}%`;
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        finish();
-      }
-    };
-    element.textContent = '0%';
-    requestAnimationFrame(tick);
-    setTimeout(finish, delay + COUNT_UP_MS + COUNT_UP_SAFETY_MS);
+    tweenShare(element, 0, Number.parseInt(element.textContent, 10), index * REVEAL_STEP_MS, COUNT_UP_MS);
   });
+}
+
+function tweenShare(element, from, to, delay, duration) {
+  const finalText = `${to}%`;
+  if (from === to) {
+    element.textContent = finalText;
+    return;
+  }
+  const startAt = performance.now() + delay;
+  let isDone = false;
+  const finish = () => {
+    isDone = true;
+    element.textContent = finalText;
+  };
+  const tick = (now) => {
+    if (isDone) {
+      return;
+    }
+    const progress = Math.min(1, Math.max(0, (now - startAt) / duration));
+    element.textContent = `${Math.round(from + (to - from) * (1 - (1 - progress) ** 3))}%`;
+    if (progress < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      finish();
+    }
+  };
+  element.textContent = `${from}%`;
+  requestAnimationFrame(tick);
+  setTimeout(finish, delay + duration + COUNT_UP_SAFETY_MS);
+}
+
+function createMorphBar(mix, { previousMix, removedId }) {
+  const previousShares = new Map(previousMix.components.map((item) => [item.flavorId, item.share]));
+  const bar = createElement('div', 'mix-bar');
+  bar.setAttribute('aria-hidden', 'true');
+  const segments = mix.components.map(({ flavorId, share }) => ({
+    flavorId,
+    from: previousShares.get(flavorId) ?? 0,
+    to: share,
+  }));
+  const removedIndex = previousMix.components.findIndex((item) => item.flavorId === removedId);
+  if (removedIndex >= 0) {
+    segments.splice(Math.min(removedIndex, segments.length), 0, {
+      flavorId: removedId,
+      from: previousShares.get(removedId),
+      to: 0,
+      isLeaving: true,
+    });
+  }
+  segments.forEach(({ flavorId, from, to, isLeaving }) => {
+    const segment = createElement('span', `mix-bar-segment${isLeaving ? ' mix-bar-segment--leaving' : ''}`);
+    segment.style.setProperty('--flavor-color', flavorColor(flavorId));
+    segment.style.setProperty('flex-grow', String(from));
+    segment.dataset.targetGrow = String(to);
+    bar.append(segment);
+  });
+  return bar;
+}
+
+function insertLeavingRow(componentList, catalog, { previousMix, removedId }) {
+  const removedIndex = previousMix.components.findIndex((item) => item.flavorId === removedId);
+  if (removedIndex < 0) {
+    return null;
+  }
+  const row = createElement('li', 'mix-component mix-component--leaving');
+  row.setAttribute('aria-hidden', 'true');
+  row.append(
+    createElement('span', 'row-placeholder'),
+    createFlavorName(catalog, removedId),
+    createElement('span', 'mix-component-share', `${previousMix.components[removedIndex].share}%`),
+    createElement('span', 'row-placeholder'),
+  );
+  componentList.insertBefore(row, componentList.children[removedIndex] ?? null);
+  return row;
+}
+
+function startMorph({ bar, leavingRow }) {
+  void bar.offsetWidth;
+  bar.querySelectorAll('.mix-bar-segment').forEach((segment) => {
+    segment.style.setProperty('flex-grow', segment.dataset.targetGrow);
+  });
+  setTimeout(() => {
+    bar.querySelectorAll('.mix-bar-segment--leaving').forEach((segment) => segment.remove());
+    leavingRow?.remove();
+  }, MORPH_MS + COUNT_UP_SAFETY_MS);
 }
 
 function prefersReducedMotion() {

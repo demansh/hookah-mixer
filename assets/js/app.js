@@ -39,6 +39,7 @@ let shelf = new Set();
 let shelfLetter = null;
 let favorites = [];
 let lastRevealedKey = null;
+let pendingEdit = null;
 let state = createStartState();
 let renderRevision = 0;
 let currentMix = null;
@@ -112,6 +113,7 @@ function resetProgress() {
 function removeFlavor(flavorId) {
   const shownMix = heldMix ?? currentMix;
   const mixFlavorIds = shownMix ? shownMix.components.map((component) => component.flavorId) : [];
+  pendingEdit = shownMix ? { previousMix: shownMix, removedId: flavorId } : null;
   update(removeFromMix(state, flavorId, mixFlavorIds), { resetSeen: true });
 }
 
@@ -328,13 +330,18 @@ function cardTitle() {
 
 function renderMixCard(mix) {
   const revealKey = mix ? favoriteKey(mix) : null;
-  const animate = Boolean(mix) && revealKey !== lastRevealedKey;
+  const isNewMix = Boolean(mix) && revealKey !== lastRevealedKey;
+  const edit = isNewMix ? pendingEdit : null;
+  if (isNewMix) {
+    pendingEdit = null;
+  }
   lastRevealedKey = revealKey;
   renderMix(screenElement, {
     state,
     catalog,
     mix,
-    animate,
+    animate: isNewMix && !edit,
+    edit,
     isFallbackTier: Boolean(mix) && mix.tier !== state.temperature,
     title: cardTitle(),
     nothingFoundKey: isShelfSource(state) ? 'shelfNothingFound' : 'nothingFound',

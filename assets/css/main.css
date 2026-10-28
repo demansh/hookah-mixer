@@ -404,6 +404,66 @@ button:focus-visible {
   background: var(--tier-color, var(--color-accent));
 }
 
+.mix-card--morph .mix-bar-segment {
+  transition: flex-grow 400ms ease-out;
+}
+
+.mix-bar-segment--leaving {
+  min-width: 0;
+}
+
+.mix-component--leaving {
+  overflow: hidden;
+  animation: leave-row 280ms ease-in forwards;
+}
+
+.mix-component--leaving .mix-component-name,
+.mix-component--leaving .mix-component-share {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.row-placeholder {
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.mix-component--leaving .row-placeholder:first-child {
+  margin-left: calc(-1 * var(--space-2));
+}
+
+.mix-component--arrived {
+  animation: arrive-row 900ms ease-out both;
+}
+
+@keyframes leave-row {
+  from {
+    max-height: 48px;
+    min-height: 0;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    min-height: 0;
+    opacity: 0;
+    border-bottom-width: 0;
+  }
+}
+
+@keyframes arrive-row {
+  from {
+    opacity: 0;
+    background: rgb(232 163 92 / 25%);
+  }
+  30% {
+    opacity: 1;
+    background: rgb(232 163 92 / 25%);
+  }
+  to {
+    background: transparent;
+  }
+}
+
 .mix-card--reveal .mix-component {
   animation: reveal-row 320ms ease-out both;
   animation-delay: calc(var(--reveal-index) * 70ms);
