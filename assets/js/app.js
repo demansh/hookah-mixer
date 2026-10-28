@@ -299,7 +299,7 @@ function renderSharedMix() {
   renderShared(screenElement, {
     catalog,
     mix: state.sharedMix,
-    title: capitalize(state.sharedQuery) || t('sharedMix'),
+    title: capitalize(state.sharedQuery) || null,
     isSaved: isFavorite(favorites, state.sharedMix),
   }, actions);
 }

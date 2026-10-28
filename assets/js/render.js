@@ -90,7 +90,7 @@ function favoriteTitle(source, catalog) {
     return concept ? conceptLabel(concept) : null;
   }
   if (source.type === 'shared') {
-    return source.query ? source.query.charAt(0).toUpperCase() + source.query.slice(1) : t('sharedMix');
+    return source.query ? source.query.charAt(0).toUpperCase() + source.query.slice(1) : null;
   }
   const sourceKeys = { flavor: 'byFlavor', shelf: 'fromShelf', random: 'randomMixTitle' };
   return t(sourceKeys[source.type]);
