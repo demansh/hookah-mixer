@@ -35,6 +35,13 @@ export function removeFavorite(favorites, key) {
   return persist(favorites.filter((item) => item.key !== key));
 }
 
+export function restoreFavorite(favorites, item) {
+  if (favorites.some((existing) => existing.key === item.key)) {
+    return favorites;
+  }
+  return persist([...favorites, item].sort((left, right) => right.addedAt - left.addedAt));
+}
+
 export function isFavorite(favorites, mix) {
   const key = mixKey(mix);
   return favorites.some((item) => item.key === key);

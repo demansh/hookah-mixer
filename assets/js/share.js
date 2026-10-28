@@ -1,10 +1,9 @@
 import { mixToParams, mixShareText } from '../core/js/index.js';
 import { t, getLang } from './i18n.js';
+import { showToast } from './toast.js';
 
 const TOAST_DURATION_MS = 3000;
 const FALLBACK_TOAST_DURATION_MS = 8000;
-
-let hideTimer = null;
 
 export function mixUrl(mix, baseUrl) {
   return `${window.location.origin}${baseUrl}/?${mixToParams(mix).toString().replace(/%2C/gi, ',')}`;
@@ -27,19 +26,9 @@ export async function shareMix(mix, catalog, baseUrl) {
   }
   try {
     await navigator.clipboard.writeText(`${text}\n${url}`);
-    showToast(t('copied'), TOAST_DURATION_MS);
+    showToast(t('copied'), { duration: TOAST_DURATION_MS });
   } catch (error) {
     console.warn('Clipboard failed', error);
-    showToast(url, FALLBACK_TOAST_DURATION_MS);
+    showToast(url, { duration: FALLBACK_TOAST_DURATION_MS });
   }
-}
-
-function showToast(message, duration) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.hidden = false;
-  clearTimeout(hideTimer);
-  hideTimer = setTimeout(() => {
-    toast.hidden = true;
-  }, duration);
 }

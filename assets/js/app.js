@@ -9,7 +9,10 @@ import {
 } from './render.js';
 import { shareMix } from './share.js';
 import { loadShelf, saveShelf, shelfExclusions } from './shelf.js';
-import { loadFavorites, addFavorite, removeFavorite, isFavorite, mixKey as favoriteKey } from './favorites.js';
+import {
+  loadFavorites, addFavorite, removeFavorite, restoreFavorite, isFavorite, mixKey as favoriteKey,
+} from './favorites.js';
+import { showToast } from './toast.js';
 import { TEMPERATURES } from './options.js';
 import { resolveMood, showMaster } from './master.js';
 import { initLang, toggleLang, t } from './i18n.js';
@@ -19,6 +22,7 @@ const baseUrl = document.documentElement.dataset.baseurl || '';
 const tierOrder = TEMPERATURES.map((temperature) => temperature.tier);
 const MAX_UNSEEN_ATTEMPTS = 12;
 const MAX_LOCK_PAGES = 5;
+const UNDO_DURATION_MS = 5000;
 
 const screenElement = document.getElementById('screen');
 const thermometerElement = document.getElementById('thermometer');
@@ -50,10 +54,7 @@ const actions = {
   },
   onToggleFavorite: () => toggleFavorite(),
   onShareMix: (mix) => shareMix(mix, catalog, baseUrl),
-  onRemoveFavorite: (key) => {
-    favorites = removeFavorite(favorites, key);
-    render();
-  },
+  onRemoveFavorite: (key) => removeFavoriteWithUndo(key),
   onShelfMix: () => update(startShelfMix(state), { resetSeen: true }),
   onSetStartTab: (startTab) => update(setStartTab(state, startTab), { replace: true }),
   onPin: (flavorId) => holdMix(pinFlavor(state, flavorId)),
@@ -222,6 +223,23 @@ async function render({ preferUnseen = false } = {}) {
     console.error(error);
     showStatus(t('engineError'));
   }
+}
+
+function removeFavoriteWithUndo(key) {
+  const removed = favorites.find((item) => item.key === key);
+  if (!removed) {
+    return;
+  }
+  favorites = removeFavorite(favorites, key);
+  render();
+  showToast(t('favoriteRemoved'), {
+    duration: UNDO_DURATION_MS,
+    actionLabel: t('undo'),
+    onAction: () => {
+      favorites = restoreFavorite(favorites, removed);
+      render();
+    },
+  });
 }
 
 function toggleFavorite() {
