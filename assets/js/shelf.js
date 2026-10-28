@@ -11,7 +11,7 @@ export function loadShelf(catalog) {
 
 export function saveShelf(shelf) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, items: [...shelf].sort() }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: SCHEMA_VERSION, items: [...shelf] }));
   } catch (error) {
     console.warn('Shelf was not saved', error);
   }

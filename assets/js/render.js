@@ -75,6 +75,11 @@ function createConceptGrid(concepts, actions) {
   return grid;
 }
 
+function updateStripFade(strip) {
+  const hasMoreOnRight = strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 1;
+  strip.classList.toggle('shelf-strip--more', hasMoreOnRight);
+}
+
 function shelfLetterOf(name) {
   return name.charAt(0).toLocaleUpperCase(getLang()).replace('Ё', 'Е');
 }
@@ -142,21 +147,23 @@ function createShelfEditor(catalog, shelf, shelfLetter, { onToggleShelf, onPickS
     .map((flavor) => ({ ...flavor, letter: shelfLetterOf(flavor.name) }));
   const letters = [...new Set(flavors.map((flavor) => flavor.letter))];
   const currentLetter = letters.includes(shelfLetter) ? shelfLetter : letters[0];
-  const shelfFlavors = flavors.filter((flavor) => shelf.has(flavor.id));
+  const flavorsById = new Map(flavors.map((flavor) => [flavor.id, flavor]));
+  const shelfFlavors = [...shelf].reverse().map((id) => flavorsById.get(id)).filter(Boolean);
 
   const selected = createElement('section', 'shelf-selected');
+  const strip = createElement('div', 'shelf-strip');
   if (shelfFlavors.length === 0) {
-    selected.append(createElement('p', 'shelf-empty', t('shelfEmpty')));
-  } else {
-    const selectedChips = createElement('div', 'flavor-chips');
-    shelfFlavors.forEach(({ id, name }) => {
-      const chip = createButton('flavor-chip shelf-item', () => onToggleShelf(id), `${name} ✕`);
-      chip.setAttribute('aria-label', t('shelfRemove', { flavor: name }));
-      selectedChips.append(chip);
-    });
-    const title = createElement('h2', 'shelf-selected-title', t('shelfSelected', { count: shelfFlavors.length }));
-    selected.append(title, selectedChips);
+    strip.append(createElement('p', 'shelf-empty', t('shelfEmpty')));
   }
+  shelfFlavors.forEach(({ id, name }) => {
+    const chip = createButton('flavor-chip shelf-item', () => onToggleShelf(id), `${name} ✕`);
+    chip.setAttribute('aria-label', t('shelfRemove', { flavor: name }));
+    strip.append(chip);
+  });
+  strip.addEventListener('scroll', () => updateStripFade(strip), { passive: true });
+  setTimeout(() => updateStripFade(strip), 0);
+  const title = createElement('h2', 'shelf-selected-title', t('shelfSelected', { count: shelfFlavors.length }));
+  selected.append(title, strip);
 
   const letterBar = createElement('div', 'shelf-letters');
   letterBar.setAttribute('role', 'group');
