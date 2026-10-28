@@ -1,6 +1,10 @@
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
 const ICON_SHAPES = {
+  'arrow-left': [
+    { tag: 'path', d: 'm12 19-7-7 7-7' },
+    { tag: 'path', d: 'M19 12H5' },
+  ],
   'lock-open': [
     { tag: 'rect', width: '18', height: '11', x: '3', y: '11', rx: '2', ry: '2' },
     { tag: 'path', d: 'M7 11V7a5 5 0 0 1 9.9-1' },

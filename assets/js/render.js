@@ -299,7 +299,7 @@ export function renderBottomActions(container, { isMixScreen, isSharedScreen, st
     return;
   }
   const tabName = t(START_TABS.find((tab) => tab.id === startTab)?.labelKey ?? 'tabMood');
-  const backButton = createButton('back-button', onReset, `← ${tabName}`);
+  const backButton = createLabeledIconButton('back-button', onReset, 'arrow-left', tabName);
   backButton.setAttribute('aria-label', t('backTo', { tab: tabName }));
   const anotherButton = createLabeledIconButton('another-button', onAnother, 'refresh', t('anotherMix'));
   container.replaceChildren(backButton, anotherButton);

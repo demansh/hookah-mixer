@@ -68,7 +68,7 @@
   `favorites.js` — хранение избранного; `share.js` — поделиться; `toast.js` — подсказки внизу и плашка
   с названием вверху; `long-press.js` — тап и долгое нажатие; `flavor-colors.js` — цвета ароматов;
   `master.js` — аватарка; `concept-emoji.js` — эмодзи и порядок образов (`CONCEPT_ORDER`; новые — в конец);
-  `icons.js` — иконки Lucide (lock-open, lock-keyhole, share, star, x, refresh-cw).
+  `icons.js` — иконки Lucide (arrow-left, lock-open, lock-keyhole, share, star, x, refresh-cw).
 - Адрес: `?tab=taste|shelf|favorites` (вкладка старта), `?s=mix&c=<образ>&keep=…&drop=…&lock=…&p=N&t=bold`;
   микс по вкусу — `?s=mix&from=flavor&keep=banana`, из шкафа — `?s=mix&from=shelf`; присланный микс —
   `?mix=mango.45,…&tier=classic`.
