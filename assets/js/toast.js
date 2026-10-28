@@ -1,4 +1,5 @@
 let hideTimer = null;
+let peekTimer = null;
 
 export function showToast(message, { duration, actionLabel, onAction } = {}) {
   const toast = document.getElementById('toast');
@@ -26,4 +27,18 @@ export function showToast(message, { duration, actionLabel, onAction } = {}) {
 export function hideToast() {
   clearTimeout(hideTimer);
   document.getElementById('toast').hidden = true;
+}
+
+export function showPeek(message) {
+  clearTimeout(peekTimer);
+  const peek = document.getElementById('peek');
+  peek.textContent = message;
+  peek.hidden = false;
+}
+
+export function hidePeekAfter(delay) {
+  clearTimeout(peekTimer);
+  peekTimer = setTimeout(() => {
+    document.getElementById('peek').hidden = true;
+  }, delay);
 }

@@ -12,7 +12,7 @@ import { loadShelf, saveShelf, shelfExclusions } from './shelf.js';
 import {
   loadFavorites, addFavorite, removeFavorite, restoreFavorite, isFavorite, mixKey as favoriteKey,
 } from './favorites.js';
-import { showToast } from './toast.js';
+import { showToast, showPeek, hidePeekAfter } from './toast.js';
 import { TEMPERATURES } from './options.js';
 import { resolveMood, showMaster } from './master.js';
 import { initLang, toggleLang, t } from './i18n.js';
@@ -23,6 +23,7 @@ const tierOrder = TEMPERATURES.map((temperature) => temperature.tier);
 const MAX_UNSEEN_ATTEMPTS = 12;
 const MAX_LOCK_PAGES = 5;
 const UNDO_DURATION_MS = 5000;
+const PEEK_LINGER_MS = 1500;
 
 const screenElement = document.getElementById('screen');
 const thermometerElement = document.getElementById('thermometer');
@@ -44,6 +45,8 @@ let heldMix = null;
 const seenMixKeys = new Set();
 
 const actions = {
+  onPeekConcept: (text) => showPeek(text),
+  onPeekEnd: () => hidePeekAfter(PEEK_LINGER_MS),
   onPickConcept: (conceptId) => update(startMix(state, conceptId), { resetSeen: true }),
   onSurprise: () => update(startMix(state, null), { resetSeen: true }),
   onPickFlavor: (flavorId) => update(startFlavorMix(state, flavorId), { resetSeen: true }),

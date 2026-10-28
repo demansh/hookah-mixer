@@ -3,6 +3,7 @@ import { TEMPERATURES, START_TABS, FLAVOR_CATEGORIES, HIDDEN_TASTE_FLAVORS, MIN_
 import { t, getLang } from './i18n.js';
 import { createIcon } from './icons.js';
 import { CONCEPT_EMOJI } from './concept-emoji.js';
+import { addPressHandlers } from './long-press.js';
 
 export function conceptLabel(concept) {
   const phrase = concept.phrases[getLang()][0] ?? concept.phrases.ru[0] ?? concept.id;
@@ -56,9 +57,9 @@ function createStartContent({ concepts, catalog, startTab, shelf, shelfLetter, f
   return [createElement('p', 'screen-hint', t('startHint')), createConceptGrid(concepts, actions)];
 }
 
-function createConceptGrid(concepts, { onPickConcept }) {
+function createConceptGrid(concepts, actions) {
   const grid = createElement('div', 'concept-grid');
-  concepts.forEach((concept) => grid.append(createConceptButton(concept, () => onPickConcept(concept.id))));
+  concepts.forEach((concept) => grid.append(createConceptButton(concept, actions)));
   return grid;
 }
 
@@ -191,14 +192,21 @@ function createFlavorGroups(catalog, { hiddenIds, createChip }) {
     });
 }
 
-function createConceptButton(concept, onClick) {
+function createConceptButton(concept, { onPickConcept, onPeekConcept, onPeekEnd }) {
   const emoji = CONCEPT_EMOJI[concept.id];
+  const name = conceptLabel(concept);
   if (!emoji) {
-    return createButton('concept-chip', onClick, conceptLabel(concept));
+    return createButton('concept-chip', () => onPickConcept(concept.id), name);
   }
-  const button = createButton('concept-emoji', onClick, emoji);
-  button.setAttribute('aria-label', conceptLabel(concept));
-  button.title = conceptLabel(concept);
+  const button = createElement('button', 'concept-emoji', emoji);
+  button.type = 'button';
+  button.setAttribute('aria-label', name);
+  button.title = name;
+  addPressHandlers(button, {
+    onTap: () => onPickConcept(concept.id),
+    onLongPress: () => onPeekConcept(`${emoji} ${name}`),
+    onLongPressEnd: onPeekEnd,
+  });
   return button;
 }
 

@@ -242,6 +242,9 @@ button:focus-visible {
 
 .concept-emoji {
   aspect-ratio: 1;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
   display: grid;
   place-items: center;
   padding: 0;
@@ -702,4 +705,30 @@ button:focus-visible {
   background: var(--color-accent);
   color: var(--color-accent-text);
   font-weight: 600;
+}
+
+.peek {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + var(--space-3));
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 30;
+  max-width: 528px;
+  min-height: 44px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-raised);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 50%);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.peek[hidden] {
+  display: none;
 }
