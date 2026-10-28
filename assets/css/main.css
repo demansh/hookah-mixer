@@ -709,24 +709,42 @@ button:focus-visible {
 
 .peek {
   position: fixed;
-  top: calc(env(safe-area-inset-top) + var(--space-3));
-  left: var(--space-4);
-  right: var(--space-4);
+  top: calc(env(safe-area-inset-top) + var(--space-2));
+  left: var(--space-3);
+  right: var(--space-3);
   z-index: 30;
-  max-width: 528px;
-  min-height: 44px;
+  max-width: 536px;
+  min-height: 48px;
   margin: 0 auto;
   padding: var(--space-2) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-raised);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 50%);
+  border-radius: 16px;
+  background: var(--color-text);
+  color: var(--color-accent-text);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 55%);
   font-weight: 600;
+  text-align: center;
   pointer-events: none;
+  animation: peek-in 180ms ease-out;
+}
+
+@keyframes peek-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek {
+    animation: none;
+  }
 }
 
 .peek[hidden] {
